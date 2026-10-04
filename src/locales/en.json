@@ -1,0 +1,551 @@
+{
+  "routes": {
+    "dashboard": "Dashboard",
+    "shipments": "Shipments",
+    "new-shipment": "New shipment",
+    "shipment-detail": "Shipment details",
+    "vehicles": "Vehicles",
+    "new-vehicle": "New vehicle",
+    "edit-vehicle": "Edit vehicle",
+    "drivers": "Drivers",
+    "new-driver": "New driver",
+    "notifications": "Notifications",
+    "sign-in": "Sign in",
+    "sign-up": "Sign up",
+    "password-recovery": "Password recovery",
+    "reset-password": "Reset password",
+    "settings": "Settings",
+    "about": "About us",
+    "terms": "Terms of service",
+    "not-found": "Page not found"
+  },
+  "common": {
+    "actions": "Actions",
+    "all": "All",
+    "back": "Back",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "last-update": "Last update",
+    "minutes": "min",
+    "optional": "optional",
+    "save": "Save",
+    "save-changes": "Save changes",
+    "select": "Select",
+    "tons": "{value} t",
+    "view-details": "View details"
+  },
+  "language": {
+    "change": "Change language",
+    "en": "English (United States)",
+    "es": "Spanish (Latin America)"
+  },
+  "navigation": {
+    "home": "AgroFlet home",
+    "main": "Main navigation",
+    "skip-to-content": "Skip to main content",
+    "open-menu": "Open navigation menu",
+    "dashboard": "Dashboard",
+    "shipments": "Shipments",
+    "new-shipment": "Register shipment",
+    "vehicles": "Vehicles",
+    "drivers": "Drivers",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "incoming-shipments": "Incoming shipments",
+    "history": "History",
+    "dispatcher-workspace": "Dispatcher workspace",
+    "buyer-workspace": "Buyer workspace"
+  },
+  "footer": {
+    "team": "AgroFlet Development Team · NexaWeb",
+    "navigation": "Footer navigation",
+    "terms": "Terms of service",
+    "about": "About us",
+    "landing": "Landing page"
+  },
+  "about": {
+    "eyebrow": "About AgroFlet",
+    "title": "About us",
+    "description": "AgroFlet is a Peruvian technology startup that improves visibility, control and traceability of the land transport of food.",
+    "mission-title": "Mission",
+    "mission": "Make coordination easier between those who dispatch and those who receive food, through shared logistics information and records of every operation.",
+    "vision-title": "Vision",
+    "vision": "Become an alternative for managing and tracing agri-food transport in Peru, with regional expansion subject to the validation of the business model.",
+    "team-title": "Our team",
+    "career": "Software Engineering · UPC"
+  },
+  "terms": {
+    "eyebrow": "Legal",
+    "title": "Terms of service",
+    "description": "Conditions, scope of the service and contact channel of the AgroFlet web application.",
+    "simulation-notice": "This version is an academic prototype that works with a Fake API. It is not an operating logistics service: positions, routes and notifications are demonstrative and do not replace official waybills or GPS tracking.",
+    "contact": "Questions about these terms:",
+    "sections": [
+      {
+        "title": "1. Scope of the service",
+        "content": "AgroFlet lets dispatchers register agricultural transport operations, assign vehicles and drivers, report incidents and positions; and lets buyers check the shipments addressed to them."
+      },
+      {
+        "title": "2. Accounts and roles",
+        "content": "Each account has one role (dispatcher or buyer). The role defines the available actions and cannot be changed from the profile. Users are responsible for keeping their credentials confidential."
+      },
+      {
+        "title": "3. Geographic information",
+        "content": "The map distinguishes the planned route from the reported positions. Each position shows its date and source; the existence of a map does not imply continuous GPS tracking, and the user's office location is never attributed to the truck."
+      },
+      {
+        "title": "4. Personal data",
+        "content": "Personal data is processed according to Peruvian Law N.° 29733 on Personal Data Protection. Buyers never see the national ID (DNI) of drivers."
+      },
+      {
+        "title": "5. Availability",
+        "content": "Functions that are still planned are identified as such and are not presented as implemented. Prices shown on the landing page are proposals and do not create charges or subscriptions."
+      },
+      {
+        "title": "6. Accessibility",
+        "content": "AgroFlet targets WCAG 2.1 level AA: keyboard navigation, visible focus, labelled form fields, text alternatives and statuses that never rely on color alone (icon, text and color). The interface is available in English (United States) and Spanish (Latin America)."
+      },
+      {
+        "title": "7. Professional ethics",
+        "content": "The team builds AgroFlet following the ACM/IEEE Software Engineering Code of Ethics and the Code of Ethics of the Colegio de Ingenieros del Perú (CIP): acting in the public interest, never presenting demonstrative data as real, protecting the privacy of users and drivers, and reporting the limitations of the product transparently."
+      }
+    ]
+  },
+  "page-not-found": {
+    "title": "Page not found",
+    "content": "The route {route} is not available. Check the address or go back to the dashboard.",
+    "go-home": "Go to dashboard"
+  },
+  "dashboard": {
+    "greeting": "Hello, {name}",
+    "dispatcher-title": "Shipment dashboard",
+    "dispatcher-description": "Active operations, their status, estimated arrival and last update.",
+    "buyer-title": "Your shipments",
+    "buyer-description": "Shipments addressed to you that are planned or in transit.",
+    "view-history": "View history",
+    "map-title": "Planned routes and reported positions",
+    "active-operations": "Active operations",
+    "empty": "No active shipments",
+    "dispatcher-empty-description": "Register your first shipment once your vehicles and drivers are ready.",
+    "buyer-empty-description": "New shipments associated with you will appear here."
+  },
+  "iam": {
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "confirm-password": "Confirm password",
+      "current-password": "Current password",
+      "new-password": "New password",
+      "first-name": "First name",
+      "last-name": "Last name",
+      "phone": "Mobile phone",
+      "company": "Company or cooperative",
+      "user-type": "Account type",
+      "preferred-language": "Preferred language"
+    },
+    "roles": {
+      "dispatcher": "Dispatcher",
+      "buyer": "Buyer",
+      "dispatcher-hint": "Coordinates shipments, vehicles and drivers from the collection center.",
+      "buyer-hint": "Follows the shipments addressed to their market, warehouse or store."
+    },
+    "segments": {
+      "dispatcher": {
+        "eyebrow": "Dispatchers and collectors",
+        "description": "Sign in to schedule shipments, assign your fleet and report incidents."
+      },
+      "buyer": {
+        "eyebrow": "Wholesale buyers",
+        "description": "Sign in to know when your shipments arrive and organize the reception."
+      }
+    },
+    "sign-in": {
+      "eyebrow": "AgroFlet web application",
+      "title": "Welcome back",
+      "description": "Sign in to access your operations.",
+      "action": "Sign in",
+      "forgot-password": "Forgot your password?",
+      "no-account": "Don't have an account?",
+      "demo-accounts": "Demo accounts (Fake API): dispatcher{'@'}agroflet.pe or buyer{'@'}agroflet.pe · password Agroflet2026"
+    },
+    "sign-up": {
+      "title": "Create your account",
+      "description": "Your account type defines the actions available after you sign in.",
+      "demo-notice": "Academic demo: accounts are stored in a public Fake API and can be reset at any time. Do not use a real password or personal data.",
+      "action": "Sign up",
+      "submit": "Create account",
+      "accept-terms": "I have read and accept the",
+      "has-account": "Already have an account?",
+      "success-title": "Account created",
+      "success-detail": "Sign in with your email and password to continue."
+    },
+    "sign-out": {
+      "action": "Sign out",
+      "header": "Sign out",
+      "message": "Do you want to close your session on this device?",
+      "accept": "Sign out"
+    },
+    "recovery": {
+      "eyebrow": "Account recovery",
+      "title": "Reset your password",
+      "description": "Enter the email of your account and we will send you instructions.",
+      "submit": "Send instructions",
+      "sent": "If an account exists for that email, you will receive instructions to reset your password.",
+      "demo-notice": "Demo mode: there is no email service yet, so the one-time link is shown here.",
+      "demo-link": "Open reset link",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "description": "The link can be used only once and expires after 30 minutes.",
+      "submit": "Update password",
+      "success": "Password updated. Sign in with your new password.",
+      "request-new": "Request a new link"
+    },
+    "profile": {
+      "title": "Profile and preferences",
+      "description": "Keep your contact data, password and language up to date.",
+      "data-title": "Personal data",
+      "language-hint": "System texts change to this language. Content written by users is not translated.",
+      "readonly-hint": "Email and account type cannot be changed from this form.",
+      "saved": "Profile updated"
+    },
+    "password": {
+      "title": "Change password",
+      "submit": "Change password",
+      "policy": "After changing your password, your session is closed and you need to sign in again.",
+      "changed": "Password changed",
+      "changed-detail": "Sign in again with your new password.",
+      "prompt": "Enter a password",
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong"
+    }
+  },
+  "fleet": {
+    "eyebrow": "Transport resources",
+    "fields": {
+      "plate": "Plate",
+      "vehicle": "Vehicle",
+      "brand": "Brand",
+      "model": "Model",
+      "year": "Year",
+      "capacity": "Capacity",
+      "capacity-tons": "Payload capacity (t)",
+      "body-type": "Body type",
+      "status": "Status",
+      "driver": "Driver",
+      "dni": "DNI",
+      "license": "License",
+      "license-number": "License number",
+      "license-category": "License category",
+      "phone": "Phone"
+    },
+    "status": {
+      "available": "Available",
+      "reserved": "Reserved",
+      "in_route": "In route",
+      "under_maintenance": "Under maintenance",
+      "assigned": "Assigned"
+    },
+    "body-types": {
+      "refrigerated_van": "Refrigerated van",
+      "dry_van": "Dry van",
+      "stake_bed": "Stake bed",
+      "flatbed": "Flatbed",
+      "tanker": "Tanker",
+      "other": "Other"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "description": "Own or contracted vehicles available for your shipments.",
+      "new": "Register vehicle",
+      "new-title": "Register vehicle",
+      "edit-title": "Edit {plate}",
+      "form-description": "Plate, capacity and body type determine which shipments the vehicle can carry.",
+      "empty": "No vehicles registered",
+      "empty-description": "Register a vehicle to assign it to your shipments.",
+      "registered": "Vehicle registered",
+      "updated": "Vehicle updated",
+      "locked-notice": "This vehicle is held by an active shipment: its status and capacity cannot be changed until the shipment is delivered or cancelled.",
+      "status-managed": "Managed by the shipment"
+    },
+    "drivers": {
+      "title": "Drivers",
+      "description": "Drivers responsible for the transport and their availability.",
+      "new": "Register driver",
+      "new-title": "Register driver",
+      "form-description": "Identity, license and contact data of the driver.",
+      "empty": "No drivers registered",
+      "empty-description": "Register a driver to assign them to your shipments.",
+      "registered": "Driver registered"
+    }
+  },
+  "shipments": {
+    "eyebrow": "Shipments",
+    "status": {
+      "planned": "Planned",
+      "in_transit": "In transit",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "cargo-types": {
+      "potato": "Potato",
+      "carrot": "Carrot",
+      "onion": "Onion",
+      "fresh_fruit": "Fresh fruit",
+      "leafy_vegetables": "Leafy vegetables",
+      "grains": "Grains",
+      "other": "Other"
+    },
+    "fields": {
+      "code": "Code",
+      "cargo": "Cargo",
+      "cargo-type": "Cargo type",
+      "cargo-description": "Cargo description",
+      "weight": "Weight (t)",
+      "origin": "Origin",
+      "destination": "Destination",
+      "route": "Route",
+      "buyer": "Buyer",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "status": "Status",
+      "planned-departure": "Planned departure",
+      "actual-departure": "Actual departure",
+      "eta": "Estimated arrival",
+      "delivered-at": "Delivered at",
+      "cancelled-at": "Cancelled at"
+    },
+    "actions": {
+      "start": "Start transport",
+      "deliver": "Mark as delivered",
+      "cancel": "Cancel operation"
+    },
+    "history": {
+      "title": "Shipment history",
+      "buyer-title": "Shipment history",
+      "description": "Search by shipment code or vehicle plate and combine filters by date, status, cargo and destination.",
+      "results": "{count} operation(s) found",
+      "empty": "No operations found",
+      "empty-description": "No operations match the criteria entered. Clear the filters to see the full list."
+    },
+    "filters": {
+      "title": "Search and filters",
+      "search": "Code or plate",
+      "search-placeholder": "AGF-0001 or ABC-123",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply filters",
+      "clear": "Clear filters",
+      "active": "Active filters",
+      "remove": "Remove filter"
+    },
+    "form": {
+      "title": "Register shipment",
+      "description": "Complete the cargo, route, buyer and resources. The shipment is created as planned.",
+      "cargo-section": "Cargo",
+      "route-section": "Route and buyer",
+      "resources-section": "Transport resources",
+      "cargo-placeholder": "e.g. Yellow potato in 50 kg bags",
+      "resources-hint": "Only available resources can be selected. Unavailable ones show their current status.",
+      "no-vehicles": "No available vehicles. Register one.",
+      "no-drivers": "No available drivers. Register one.",
+      "review": "Review",
+      "reservation-note": "The selection is provisional: the vehicle and driver are reserved only when you confirm the shipment.",
+      "confirm": "Confirm shipment",
+      "created": "Shipment {code} registered",
+      "created-detail": "The vehicle and driver were reserved."
+    },
+    "detail": {
+      "eyebrow": "Shipment details",
+      "back": "Back to shipments",
+      "not-found": "Shipment not available",
+      "not-found-description": "The shipment does not exist or is not associated with your account.",
+      "terminal-notice": "This operation is closed and cannot be reopened.",
+      "includes-delay": "Includes {minutes} min of reported delays",
+      "operation": "Operation",
+      "participants": "Participants and resources",
+      "created": "Shipment registered as planned",
+      "transition": "Status changed from {from} to {to}",
+      "tabs": {
+        "summary": "Summary",
+        "route": "Planned route",
+        "positions": "Reported positions",
+        "incidents": "Incidents",
+        "history": "Status history"
+      }
+    },
+    "start": {
+      "header": "Start transport",
+      "message": "Confirm the effective departure of {code}. The shipment will change to in transit.",
+      "success": "{code} is now in transit"
+    },
+    "deliver": {
+      "header": "Register delivery",
+      "message": "Confirm that {code} was unloaded at destination. The vehicle and driver will be released.",
+      "success": "{code} was delivered"
+    },
+    "cancel": {
+      "title": "Cancel {code}",
+      "warning": "A cancelled operation cannot be reopened. The vehicle and driver will be released.",
+      "reason": "Cancellation reason",
+      "success": "{code} was cancelled"
+    }
+  },
+  "tracking": {
+    "map-label": "Map with planned routes and reported positions",
+    "planned-route": "Planned route",
+    "reported-position": "Reported position",
+    "reported-at": "Reported at",
+    "source": "Source",
+    "coordinates": "Coordinates",
+    "reference": "Reference",
+    "reference-placeholder": "e.g. Ticlio toll",
+    "data-type": "Data",
+    "demo-data": "Demo data",
+    "reported-data": "Reported",
+    "last-position": "Last reported position",
+    "location-unavailable": "Location not available",
+    "no-position": "Location not available: no position has been reported for this shipment.",
+    "no-positions": "No reported positions",
+    "no-position-description": "Positions appear when the dispatcher registers a location received from the driver.",
+    "stale-message": "Last reported position is outdated. Last update: {date}.",
+    "stale-warning": "Outdated position",
+    "route-unavailable": "Planned route not available. The shipment data is kept.",
+    "route-summary": "Reference line between origin and destination (≈ {km} km in a straight line). It is not the path actually travelled.",
+    "disclaimer": "The map shows the planned route and the positions reported with their date and source. It is not continuous GPS tracking.",
+    "register-position": "Register position",
+    "register-hint": "Enter the coordinates received from the driver or a checkpoint. Your own location is never used as the truck position.",
+    "position-registered": "Position registered",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "sources": {
+      "driver_call": "Driver call",
+      "whatsapp_message": "WhatsApp message",
+      "gps_device": "GPS device",
+      "checkpoint": "Road checkpoint"
+    },
+    "legend": {
+      "planned-route": "Planned route",
+      "reported-position": "Reported position",
+      "last-position": "Last position",
+      "stale-position": "Outdated last position"
+    }
+  },
+  "incidents": {
+    "register": "Register incident",
+    "register-hint": "Report an event that affects {code}. The estimated arrival is recalculated once.",
+    "type": "Incident type",
+    "description": "Description",
+    "estimated-delay": "Estimated delay",
+    "occurred-at": "Occurred at",
+    "delay": "+{minutes} min",
+    "registered": "Incident registered",
+    "duplicated": "Incident already registered",
+    "eta-updated": "The estimated arrival was updated and the participants were notified.",
+    "empty": "No incidents",
+    "empty-description": "No incidents have been reported for this shipment.",
+    "types": {
+      "road_block": "Road block",
+      "landslide": "Landslide (huaico)",
+      "mechanical_failure": "Mechanical failure",
+      "accident": "Accident",
+      "heavy_traffic": "Heavy traffic",
+      "weather": "Weather conditions",
+      "other": "Other"
+    }
+  },
+  "notifications": {
+    "eyebrow": "Alerts",
+    "title": "Notifications",
+    "description": "Incidents and status changes of the shipments you participate in.",
+    "mark-all": "Mark all as read",
+    "mark-read": "Mark as read",
+    "new": "New",
+    "empty": "No notifications",
+    "empty-description": "You will be notified about incidents and status changes of your shipments.",
+    "unread-count": "Notifications, {count} unread",
+    "filters": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "incident-title": "New incident on {code}",
+    "incident-message": "{type} reported. Estimated delay: {minutes} min.",
+    "status-title": "{code}: {status}",
+    "status-message": "Status changed from {from} to {to}.",
+    "created-message": "A new shipment was planned for you."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email": "Enter a valid email (name{'@'}company.com).",
+    "password": "At least {min} characters, including letters and numbers.",
+    "passwords-match": "Passwords do not match.",
+    "phone": "9 digits starting with 9.",
+    "accept-terms": "You must accept the terms of service.",
+    "plate": "Format ABC-123.",
+    "year": "Enter a year between 1980 and next year.",
+    "capacity": "Capacity must be greater than 0.",
+    "dni": "8 digits.",
+    "license": "One letter followed by 8 digits (e.g. Q12345678).",
+    "latitude": "Between -90 and 90.",
+    "longitude": "Between -180 and 180.",
+    "not-future": "The date cannot be in the future.",
+    "source": "Select the source of the position.",
+    "delay": "Minutes, 0 or more.",
+    "reason": "Enter the cancellation reason."
+  },
+  "errors": {
+    "unexpected": "Something went wrong. Try again.",
+    "network": "The service could not be reached. Check your connection and try again.",
+    "api-unavailable": "The AgroFlet API is not available. Start the Fake API (npm run server) and reload the page.",
+    "not-found": "The record does not exist or is not associated with your account.",
+    "forbidden": "Your account cannot perform this action.",
+    "invalid-credentials": "Email or password is incorrect. Check your data and try again.",
+    "email-taken": "An account with that email already exists. Sign in or use another email.",
+    "wrong-current-password": "The current password is incorrect. Your password was not changed.",
+    "invalid-reset-token": "The reset link is invalid, expired or was already used. Request a new one.",
+    "invalid-transition": "The operation cannot change to that status from its current status.",
+    "reason-required": "Enter the cancellation reason.",
+    "not-in-transit": "This action is only available while the shipment is in transit.",
+    "plate-duplicated": "There is already a vehicle with that plate in your fleet.",
+    "dni-duplicated": "There is already a driver with that DNI in your fleet.",
+    "status-locked": "The vehicle is held by an active shipment; its status cannot be changed now.",
+    "capacity-locked": "The capacity cannot change while a shipment holds the vehicle.",
+    "vehicle-unavailable": "The selected vehicle is no longer available. Choose another one.",
+    "driver-unavailable": "The selected driver is no longer available. Choose another one.",
+    "inverted-range": "The start date is after the end date. Correct the range.",
+    "arrival-before-departure": "The estimated arrival must be after the planned departure.",
+    "same-origin-destination": "Origin and destination must be different.",
+    "weight-positive": "The weight must be greater than 0.",
+    "weight-exceeds-capacity": "The weight exceeds the capacity of the selected vehicle.",
+    "buyer-required": "Select the buyer.",
+    "origin-required": "Select the origin.",
+    "destination-required": "Select the destination.",
+    "vehicle-required": "Select a vehicle.",
+    "driver-required": "Select a driver.",
+    "departure-required": "Enter the planned departure.",
+    "arrival-required": "Enter the estimated arrival.",
+    "plate-format": "The plate must follow the format ABC-123.",
+    "brand-required": "Enter the brand.",
+    "model-required": "Enter the model.",
+    "year-range": "Enter a valid year.",
+    "capacity-positive": "Capacity must be greater than 0.",
+    "first-name-required": "Enter the first name.",
+    "last-name-required": "Enter the last name.",
+    "dni-format": "The DNI must have 8 digits.",
+    "license-format": "The license number is not valid.",
+    "license-category": "Select a license category.",
+    "phone-format": "The phone must have 9 digits starting with 9.",
+    "type-required": "Select the incident type.",
+    "description-required": "Enter a description.",
+    "delay-non-negative": "The delay must be 0 or more minutes.",
+    "occurred-at-required": "Enter when it happened.",
+    "occurred-at-future": "The date cannot be in the future.",
+    "latitude-range": "Latitude out of range.",
+    "longitude-range": "Longitude out of range.",
+    "source-required": "Select the source of the position.",
+    "reported-at-required": "Enter when the position was reported.",
+    "reported-at-future": "The date cannot be in the future."
+  }
+}
