@@ -1,0 +1,57 @@
+# Publishes the application on GitHub Pages (https://agroflet.github.io/Agroflet-frontend-application/) on every push
+# to main, for example when the release pull request is merged. Before the first run, enable GitHub Pages in the
+# repository: Settings > Pages > Build and deployment > Source: GitHub Actions.
+#
+# GitHub Pages only serves static files, so this build calls the Fake API deployed on Vercel (api/index.js), which
+# accepts requests from other domains. Repository variables (Settings > Secrets and variables > Actions > Variables)
+# can override the API URL (AGROFLET_PLATFORM_API_URL) and set the PrimeUI license key (PRIME_UI_LICENSE_KEY).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build for the repository path
+        run: npm run build -- --base "/${{ github.event.repository.name }}/"
+        env:
+          VITE_AGROFLET_PLATFORM_API_URL: ${{ vars.AGROFLET_PLATFORM_API_URL || 'https://agroflet-frontend-application.vercel.app/api/v1' }}
+          VITE_PRIME_UI_LICENSE_KEY: ${{ vars.PRIME_UI_LICENSE_KEY }}
+      - name: Serve every route with the application
+        # GitHub Pages answers unknown paths with 404.html, so a copy of index.html lets Vue Router open any route
+        # (history mode) after a reload or from a direct link.
+        run: cp dist/index.html dist/404.html
+      - name: Set up GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload the build
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
