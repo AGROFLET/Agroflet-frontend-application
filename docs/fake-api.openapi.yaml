@@ -1,0 +1,1169 @@
+openapi: 3.0.3
+info:
+  title: AgroFlet Fake API (Sprint 2)
+  version: 1.0.0
+  description: |
+    Fake API consumed by the AgroFlet Frontend Web Application during Sprint 2 (TB1). It is served by
+    `json-server` 0.17 from `server/db.json`, and `server/routes.json` maps `/api/v1/*` to the root resources.
+
+    Start it from the project root with `npm run server` (or `cd server && sh start.sh`) and open this file in
+    Swagger Editor (https://editor.swagger.io) to try the requests against `http://localhost:3000/api/v1`.
+
+    Conventions of `json-server`:
+    - Any resource field can be used as a filter (`?dispatcherId=1`); repeating a parameter matches any of the
+      values (`?shipmentId=1&shipmentId=3`).
+    - `_sort`, `_order` (`asc` or `desc`) and `_limit` sort and limit collections.
+    - `POST` assigns the next numeric `id`; `PATCH` merges the given fields; every write is persisted in `db.json`.
+
+    Limitations: this API has no real authentication and returns every stored field, including `password`. It only
+    holds demo data and will be replaced by the AgroFlet RESTful API (ASP.NET Core), whose contracts are the
+    technical stories TS01–TS27 of the project report. Each operation below names the technical story it emulates.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local json-server (development)
+  - url: https://agroflet-frontend-application.vercel.app/api/v1
+    description: Deployed Fake API (Vercel Function; data returns to the seed when a new instance starts)
+# The client sends `Authorization: Bearer <token>` (iamInterceptor), but json-server does not validate it.
+security: []
+tags:
+  - name: IAM
+    description: Identity & Access Management bounded context
+  - name: Fleet
+    description: Fleet & Resource Management bounded context
+  - name: Shipments
+    description: Shipment & Dispatch Operations bounded context
+  - name: Tracking
+    description: Real-Time Tracking & Route Telemetry bounded context
+  - name: Incidents
+    description: Incident, Alert & Audit Management bounded context
+  - name: Landing
+    description: Landing page contact form
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      tags: [IAM]
+      summary: Find users by email or role
+      description: |
+        Emulates the account lookup of TS01 (duplicated email check) and TS02 (sign-in, the client compares the
+        password and creates the session). The application also lists buyers (`userType=buyer`) to register shipments.
+      parameters:
+        - name: email
+          in: query
+          schema: {type: string, format: email}
+          example: dispatcher@agroflet.pe
+        - name: userType
+          in: query
+          schema: {$ref: '#/components/schemas/UserType'}
+      responses:
+        '200':
+          description: Users that match every filter (empty array when none matches).
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/User'}
+              example:
+                - id: 1
+                  firstName: Rosa
+                  lastName: Quispe Huamán
+                  email: dispatcher@agroflet.pe
+                  password: Agroflet2026
+                  userType: dispatcher
+                  phone: '987654321'
+                  companyName: Cooperativa Agraria Valle del Mantaro
+                  preferredLanguage: en
+                  createdAt: '2026-09-01T10:00:00.000Z'
+    post:
+      operationId: createUser
+      tags: [IAM]
+      summary: Register an account (sign-up)
+      description: Emulates TS01. The application rejects duplicated emails before calling this operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserInput'}
+            example:
+              firstName: Lucía
+              lastName: Torres Vega
+              email: lucia.torres@agroflet.pe
+              password: Agroflet2026
+              userType: buyer
+              phone: '912345678'
+              companyName: Mercado Mayorista de Lima
+              preferredLanguage: es
+              createdAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '201':
+          description: Created account.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+  /users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      operationId: getUser
+      tags: [IAM]
+      summary: Get a user profile
+      description: Emulates TS17 (profile) and resolves the participants of a shipment.
+      responses:
+        '200':
+          description: User.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateUser
+      tags: [IAM]
+      summary: Update profile, preferred language or password
+      description: |
+        Emulates TS18 (editable profile fields and `preferredLanguage`), TS23 and TS24 (new password). Role and email
+        are never sent by the application.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserPatch'}
+            example:
+              phone: '987000111'
+              companyName: Cooperativa Agraria Valle del Mantaro
+              preferredLanguage: es
+      responses:
+        '200':
+          description: Updated user.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /password-reset-requests:
+    get:
+      operationId: findPasswordResetRequests
+      tags: [IAM]
+      summary: Find a reset request by token
+      description: Emulates the token validation of TS23.
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          description: Matching requests (empty when the token does not exist).
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/PasswordResetRequest'}
+    post:
+      operationId: createPasswordResetRequest
+      tags: [IAM]
+      summary: Create a one-time reset token
+      description: Emulates TS22. The application only creates it when the account exists and always shows a generic answer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PasswordResetRequestInput'}
+            example:
+              userId: 2
+              token: YWdyb2ZsZXQ6MjoxNzU5NTAzNjAwMDAwOmszajl4Mg
+              requestedAt: '2026-10-03T15:00:00.000Z'
+              expiresAt: '2026-10-03T15:30:00.000Z'
+              used: false
+      responses:
+        '201':
+          description: Created request.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PasswordResetRequest'}
+  /password-reset-requests/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      operationId: updatePasswordResetRequest
+      tags: [IAM]
+      summary: Mark a reset token as used
+      description: Emulates the invalidation of the token in TS23.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                used: {type: boolean}
+                usedAt: {type: string, format: date-time}
+            example:
+              used: true
+              usedAt: '2026-10-03T15:05:00.000Z'
+      responses:
+        '200':
+          description: Updated request.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PasswordResetRequest'}
+  /vehicles:
+    get:
+      operationId: listVehicles
+      tags: [Fleet]
+      summary: List vehicles
+      description: Emulates TS09. The application filters by the signed-in dispatcher and checks duplicated plates.
+      parameters:
+        - name: dispatcherId
+          in: query
+          schema: {type: integer}
+          example: 1
+        - name: plate
+          in: query
+          schema: {type: string}
+        - name: id
+          in: query
+          description: Repeat it to load the vehicles of several shipments (`id=1&id=3`).
+          schema:
+            type: array
+            items: {type: integer}
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: Vehicles that match every filter.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Vehicle'}
+              example:
+                - id: 1
+                  dispatcherId: 1
+                  plate: ABC-123
+                  brand: Volvo
+                  model: FH 460
+                  year: 2019
+                  capacityTons: 30
+                  bodyType: refrigerated_van
+                  status: in_route
+                  updatedAt: '2026-10-03T04:20:00.000Z'
+    post:
+      operationId: createVehicle
+      tags: [Fleet]
+      summary: Register a vehicle
+      description: Emulates TS10. New vehicles start as `available`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VehicleInput'}
+            example:
+              dispatcherId: 1
+              plate: F2K-845
+              brand: Hino
+              model: Serie 500
+              year: 2021
+              capacityTons: 12
+              bodyType: dry_van
+              status: available
+              updatedAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '201':
+          description: Created vehicle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Vehicle'}
+  /vehicles/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      operationId: getVehicle
+      tags: [Fleet]
+      summary: Get a vehicle
+      responses:
+        '200':
+          description: Vehicle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Vehicle'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateVehicle
+      tags: [Fleet]
+      summary: Update a vehicle or its status
+      description: |
+        Emulates TS25 (editable data) and TS19 (`available` ↔ `under_maintenance`). Shipments also use it to reserve
+        (`reserved`), lock (`in_route`) and release (`available`) the vehicle.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VehiclePatch'}
+            example:
+              status: under_maintenance
+              updatedAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '200':
+          description: Updated vehicle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Vehicle'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /drivers:
+    get:
+      operationId: listDrivers
+      tags: [Fleet]
+      summary: List drivers
+      description: Emulates TS11. The application filters by the signed-in dispatcher and checks duplicated DNI.
+      parameters:
+        - name: dispatcherId
+          in: query
+          schema: {type: integer}
+          example: 1
+        - name: dni
+          in: query
+          schema: {type: string}
+      responses:
+        '200':
+          description: Drivers that match every filter.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Driver'}
+              example:
+                - id: 1
+                  dispatcherId: 1
+                  firstName: Juan
+                  lastName: Mamani Quispe
+                  dni: '45879632'
+                  licenseNumber: Q45879632
+                  licenseCategory: A-IIIc
+                  phone: '987111222'
+                  status: assigned
+                  updatedAt: '2026-10-03T04:20:00.000Z'
+    post:
+      operationId: createDriver
+      tags: [Fleet]
+      summary: Register a driver
+      description: Emulates TS12. New drivers start as `available`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DriverInput'}
+            example:
+              dispatcherId: 1
+              firstName: Pedro
+              lastName: Huamán Ríos
+              dni: '41234567'
+              licenseNumber: Q41234567
+              licenseCategory: A-IIIb
+              phone: '987222333'
+              status: available
+              updatedAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '201':
+          description: Created driver.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Driver'}
+  /drivers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      operationId: getDriver
+      tags: [Fleet]
+      summary: Get a driver
+      responses:
+        '200':
+          description: Driver.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Driver'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateDriver
+      tags: [Fleet]
+      summary: Update the status of a driver
+      description: Used by shipments to assign (`assigned`) and release (`available`) the driver.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: {$ref: '#/components/schemas/DriverStatus'}
+                updatedAt: {type: string, format: date-time}
+            example:
+              status: assigned
+              updatedAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '200':
+          description: Updated driver.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Driver'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [Shipments]
+      summary: List origins and destinations
+      description: Georeferenced collection centers (origins) and markets or distribution centers (destinations).
+      responses:
+        '200':
+          description: Locations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Location'}
+              example:
+                - id: 1
+                  name: Centro de Acopio El Tambo
+                  city: Huancayo
+                  region: Junín
+                  latitude: -12.056
+                  longitude: -75.216
+                  kind: origin
+  /shipments:
+    get:
+      operationId: listShipments
+      tags: [Shipments]
+      summary: List the authorized shipments
+      description: |
+        Emulates TS03 and TS13. Dispatchers query by `dispatcherId` and buyers by `buyerId`; the combined filters and
+        the search by code or plate of US15 and US16 run in the client over this authorized list.
+      parameters:
+        - name: dispatcherId
+          in: query
+          schema: {type: integer}
+          example: 1
+        - name: buyerId
+          in: query
+          schema: {type: integer}
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Shipments that match every filter.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Shipment'}
+    post:
+      operationId: createShipment
+      tags: [Shipments]
+      summary: Register a planned shipment
+      description: |
+        Emulates TS04. The application validates the weight against the vehicle capacity, checks availability,
+        creates the shipment, reserves the vehicle and driver (`PATCH /vehicles/{id}`, `PATCH /drivers/{id}`), records
+        the first status change and notifies the participants; if the reservation fails it deletes the shipment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ShipmentInput'}
+            example:
+              code: AGF-0006
+              dispatcherId: 1
+              buyerId: 2
+              cargoType: carrot
+              cargoDescription: Zanahoria lavada en jabas
+              weightTons: 8
+              originId: 6
+              destinationId: 7
+              vehicleId: 3
+              driverId: 3
+              status: planned
+              plannedDepartureAt: '2026-10-04T04:00:00.000Z'
+              estimatedArrivalAt: '2026-10-04T08:00:00.000Z'
+              actualDepartureAt: null
+              deliveredAt: null
+              cancelledAt: null
+              cancellationReason: null
+              createdAt: '2026-10-03T15:00:00.000Z'
+              updatedAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '201':
+          description: Created shipment.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Shipment'}
+  /shipments/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      operationId: getShipment
+      tags: [Shipments]
+      summary: Get a shipment
+      description: |
+        Emulates TS05. The application shows the shipment only to its dispatcher or buyer; for anyone else it shows
+        "not available" without revealing whether it exists.
+      responses:
+        '200':
+          description: Shipment.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Shipment'}
+              example:
+                id: 1
+                code: AGF-0001
+                dispatcherId: 1
+                buyerId: 2
+                cargoType: potato
+                cargoDescription: Papa amarilla en sacos de 50 kg
+                weightTons: 25
+                originId: 1
+                destinationId: 7
+                vehicleId: 1
+                driverId: 1
+                status: in_transit
+                plannedDepartureAt: '2026-10-03T04:00:00.000Z'
+                estimatedArrivalAt: '2026-10-03T14:30:00.000Z'
+                actualDepartureAt: '2026-10-03T04:20:00.000Z'
+                deliveredAt: null
+                cancelledAt: null
+                cancellationReason: null
+                createdAt: '2026-10-02T15:00:00.000Z'
+                updatedAt: '2026-10-03T11:30:00.000Z'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateShipment
+      tags: [Shipments]
+      summary: Apply a lifecycle transition or a new estimated arrival
+      description: |
+        Emulates TS06 (start of transport, delivery and cancellation with reason) and the ETA recalculation of TS07.
+        The domain model validates the transition before the request is sent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ShipmentPatch'}
+            example:
+              status: cancelled
+              cancelledAt: '2026-10-03T15:00:00.000Z'
+              cancellationReason: Lluvias intensas bloquearon la vía de acceso al centro de acopio.
+              updatedAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '200':
+          description: Updated shipment.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Shipment'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteShipment
+      tags: [Shipments]
+      summary: Roll back a shipment whose reservation failed
+      description: Only used to leave no partial records when the reservation of TS04 fails.
+      responses:
+        '200':
+          description: Deleted (json-server answers with an empty object).
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /status-changes:
+    get:
+      operationId: listStatusChanges
+      tags: [Shipments]
+      summary: Get the status history of a shipment
+      description: Emulates TS20. The history starts with `planned`.
+      parameters:
+        - name: shipmentId
+          in: query
+          required: true
+          schema: {type: integer}
+          example: 1
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Status changes of the shipment.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/StatusChange'}
+              example:
+                - id: 1
+                  shipmentId: 1
+                  previousStatus: null
+                  newStatus: planned
+                  changedAt: '2026-10-02T15:00:00.000Z'
+                  changedBy: 1
+                  reason: null
+                - id: 2
+                  shipmentId: 1
+                  previousStatus: planned
+                  newStatus: in_transit
+                  changedAt: '2026-10-03T04:20:00.000Z'
+                  changedBy: 1
+                  reason: null
+    post:
+      operationId: createStatusChange
+      tags: [Shipments]
+      summary: Record a status change
+      description: Written by the application after every registration or transition (TS04, TS06).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/StatusChangeInput'}
+      responses:
+        '201':
+          description: Created status change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/StatusChange'}
+  /positions:
+    get:
+      operationId: listPositions
+      tags: [Tracking]
+      summary: Get the reported positions of one or more shipments
+      description: Emulates TS14. Repeat `shipmentId` to load the positions of every active shipment of the map.
+      parameters:
+        - name: shipmentId
+          in: query
+          required: true
+          schema:
+            type: array
+            items: {type: integer}
+          style: form
+          explode: true
+          example: [1, 2]
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Positions, oldest first when `_sort=reportedAt&_order=asc`.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ReportedPosition'}
+              example:
+                - id: 3
+                  shipmentId: 1
+                  latitude: -11.937
+                  longitude: -76.697
+                  reportedAt: '2026-10-03T11:25:00.000Z'
+                  recordedAt: '2026-10-03T11:30:00.000Z'
+                  source: driver_call
+                  recordedBy: 1
+                  isDemo: true
+                  note: Chosica
+    post:
+      operationId: createPosition
+      tags: [Tracking]
+      summary: Register a reported position
+      description: |
+        Emulates TS26. Only for in-transit shipments, with coordinates in range, the report date and the source. The
+        browser location is never used as the truck position.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ReportedPositionInput'}
+            example:
+              shipmentId: 1
+              latitude: -12.03
+              longitude: -76.92
+              reportedAt: '2026-10-03T14:00:00.000Z'
+              recordedAt: '2026-10-03T14:05:00.000Z'
+              source: whatsapp_message
+              recordedBy: 1
+              isDemo: false
+              note: Ate
+      responses:
+        '201':
+          description: Created position.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReportedPosition'}
+  /incidents:
+    get:
+      operationId: listIncidents
+      tags: [Incidents]
+      summary: Get the incidents of a shipment or look up an idempotency key
+      description: |
+        Emulates TS08 (`shipmentId`, newest first) and the idempotency check of TS07 (`idempotencyKey`): a retry with
+        the same key returns the existing incident and the delay is not applied again.
+      parameters:
+        - name: shipmentId
+          in: query
+          schema: {type: integer}
+          example: 1
+        - name: idempotencyKey
+          in: query
+          schema: {type: string}
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Incidents that match every filter (empty when none).
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Incident'}
+              example:
+                - id: 1
+                  shipmentId: 1
+                  type: road_block
+                  description: Cierre parcial por trabajos de mantenimiento en Ticlio; tránsito alternado.
+                  estimatedDelayMinutes: 90
+                  occurredAt: '2026-10-03T08:00:00.000Z'
+                  reportedBy: 1
+                  idempotencyKey: seed-incident-1
+                  createdAt: '2026-10-03T08:12:00.000Z'
+    post:
+      operationId: createIncident
+      tags: [Incidents]
+      summary: Register an incident
+      description: |
+        Emulates TS07. After creating it the application adds `estimatedDelayMinutes` once to the estimated arrival
+        (`PATCH /shipments/{id}`) and publishes one notification per participant.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/IncidentInput'}
+            example:
+              shipmentId: 1
+              type: landslide
+              description: Huaico en el km 98 de la Carretera Central; tránsito restringido.
+              estimatedDelayMinutes: 45
+              occurredAt: '2026-10-03T13:40:00.000Z'
+              reportedBy: 1
+              idempotencyKey: 0f8c2a3e-5b7d-4c1a-9e2f-7a6b5c4d3e21
+              createdAt: '2026-10-03T13:45:00.000Z'
+      responses:
+        '201':
+          description: Created incident.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Incident'}
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [Incidents]
+      summary: Get the notifications of a user
+      description: Emulates TS15. With `eventKey` it is also used to avoid duplicated notifications for the same event.
+      parameters:
+        - name: recipientId
+          in: query
+          required: true
+          schema: {type: integer}
+          example: 2
+        - name: eventKey
+          in: query
+          schema: {type: string}
+          example: incident-1
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Notifications of the recipient, newest first with `_sort=createdAt&_order=desc`.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Notification'}
+              example:
+                - id: 1
+                  recipientId: 2
+                  shipmentId: 1
+                  shipmentCode: AGF-0001
+                  type: incident
+                  eventKey: incident-1
+                  payload:
+                    incidentType: road_block
+                    estimatedDelayMinutes: 90
+                  createdAt: '2026-10-03T08:12:00.000Z'
+                  isRead: false
+                  readAt: null
+    post:
+      operationId: createNotification
+      tags: [Incidents]
+      summary: Publish a notification
+      description: Written by the application for each participant of an incident (US19) or a status change (US20).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NotificationInput'}
+      responses:
+        '201':
+          description: Created notification.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Notification'}
+  /notifications/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      operationId: updateNotification
+      tags: [Incidents]
+      summary: Mark a notification as read
+      description: Emulates TS16. The application never sends it again for a notification already read, so `readAt` keeps the first date.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isRead: {type: boolean}
+                readAt: {type: string, format: date-time}
+            example:
+              isRead: true
+              readAt: '2026-10-03T15:00:00.000Z'
+      responses:
+        '200':
+          description: Updated notification.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Notification'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /contact-messages:
+    post:
+      operationId: createContactMessage
+      tags: [Landing]
+      summary: Send a contact message
+      description: Emulates TS27 for the contact form of the landing page (US28). The web application does not use it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, message]
+              properties:
+                name: {type: string}
+                email: {type: string, format: email}
+                message: {type: string}
+            example:
+              name: María Quispe
+              email: maria.quispe@example.com
+              message: Quisiera conocer el plan para cooperativas.
+      responses:
+        '201':
+          description: Stored message.
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer}
+      example: 1
+    Sort:
+      name: _sort
+      in: query
+      description: Field used to sort the collection.
+      schema: {type: string}
+    Order:
+      name: _order
+      in: query
+      schema:
+        type: string
+        enum: [asc, desc]
+    Limit:
+      name: _limit
+      in: query
+      schema: {type: integer, minimum: 1}
+  responses:
+    NotFound:
+      description: The resource does not exist (json-server answers with an empty object).
+  schemas:
+    UserType:
+      type: string
+      enum: [dispatcher, buyer]
+    Language:
+      type: string
+      enum: [en, es]
+    UserInput:
+      type: object
+      required: [firstName, lastName, email, password, userType]
+      properties:
+        firstName: {type: string}
+        lastName: {type: string}
+        email: {type: string, format: email}
+        password:
+          type: string
+          minLength: 8
+          description: Stored in plain text by the Fake API (demo data only).
+        userType: {$ref: '#/components/schemas/UserType'}
+        phone:
+          type: string
+          pattern: '^9\d{8}$'
+        companyName: {type: string}
+        preferredLanguage: {$ref: '#/components/schemas/Language'}
+        createdAt: {type: string, format: date-time}
+    User:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/UserInput'
+    UserPatch:
+      type: object
+      properties:
+        firstName: {type: string}
+        lastName: {type: string}
+        phone: {type: string}
+        companyName: {type: string}
+        preferredLanguage: {$ref: '#/components/schemas/Language'}
+        password: {type: string, minLength: 8}
+    PasswordResetRequestInput:
+      type: object
+      required: [userId, token, requestedAt, expiresAt, used]
+      properties:
+        userId: {type: integer}
+        token: {type: string}
+        requestedAt: {type: string, format: date-time}
+        expiresAt:
+          type: string
+          format: date-time
+          description: 30 minutes after `requestedAt`.
+        used: {type: boolean}
+        usedAt: {type: string, format: date-time}
+    PasswordResetRequest:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/PasswordResetRequestInput'
+    VehicleStatus:
+      type: string
+      enum: [available, reserved, in_route, under_maintenance]
+    VehicleInput:
+      type: object
+      required: [dispatcherId, plate, brand, model, year, capacityTons, bodyType, status]
+      properties:
+        dispatcherId: {type: integer}
+        plate:
+          type: string
+          pattern: '^[A-Z0-9]{3}-\d{3}$'
+        brand: {type: string}
+        model: {type: string}
+        year: {type: integer}
+        capacityTons:
+          type: number
+          minimum: 0
+          description: Must be greater than 0 (validated by the Vehicle entity).
+        bodyType:
+          type: string
+          enum: [refrigerated_van, dry_van, stake_bed, flatbed, tanker, other]
+        status: {$ref: '#/components/schemas/VehicleStatus'}
+        updatedAt: {type: string, format: date-time}
+    Vehicle:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/VehicleInput'
+    VehiclePatch:
+      type: object
+      properties:
+        plate: {type: string}
+        brand: {type: string}
+        model: {type: string}
+        year: {type: integer}
+        capacityTons: {type: number}
+        bodyType: {type: string}
+        status: {$ref: '#/components/schemas/VehicleStatus'}
+        updatedAt: {type: string, format: date-time}
+    DriverStatus:
+      type: string
+      enum: [available, assigned]
+    DriverInput:
+      type: object
+      required: [dispatcherId, firstName, lastName, dni, licenseNumber, licenseCategory, phone, status]
+      properties:
+        dispatcherId: {type: integer}
+        firstName: {type: string}
+        lastName: {type: string}
+        dni:
+          type: string
+          pattern: '^\d{8}$'
+        licenseNumber: {type: string}
+        licenseCategory:
+          type: string
+          enum: [A-IIa, A-IIb, A-IIIa, A-IIIb, A-IIIc]
+        phone:
+          type: string
+          pattern: '^9\d{8}$'
+        status: {$ref: '#/components/schemas/DriverStatus'}
+        updatedAt: {type: string, format: date-time}
+    Driver:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/DriverInput'
+    Location:
+      type: object
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        city: {type: string}
+        region: {type: string}
+        latitude: {type: number, nullable: true}
+        longitude: {type: number, nullable: true}
+        kind:
+          type: string
+          enum: [origin, destination]
+    ShipmentStatus:
+      type: string
+      enum: [planned, in_transit, delivered, cancelled]
+    ShipmentInput:
+      type: object
+      required: [code, dispatcherId, buyerId, cargoType, weightTons, originId, destinationId, vehicleId, driverId,
+                 status, plannedDepartureAt, estimatedArrivalAt]
+      properties:
+        code:
+          type: string
+          example: AGF-0006
+        dispatcherId: {type: integer}
+        buyerId: {type: integer}
+        cargoType:
+          type: string
+          enum: [potato, carrot, onion, fresh_fruit, leafy_vegetables, grains, other]
+        cargoDescription: {type: string}
+        weightTons:
+          type: number
+          minimum: 0
+          description: Must be greater than 0 and must not exceed the capacity of the vehicle.
+        originId: {type: integer}
+        destinationId: {type: integer}
+        vehicleId: {type: integer}
+        driverId: {type: integer}
+        status: {$ref: '#/components/schemas/ShipmentStatus'}
+        plannedDepartureAt: {type: string, format: date-time}
+        estimatedArrivalAt: {type: string, format: date-time}
+        actualDepartureAt: {type: string, format: date-time, nullable: true}
+        deliveredAt: {type: string, format: date-time, nullable: true}
+        cancelledAt: {type: string, format: date-time, nullable: true}
+        cancellationReason: {type: string, nullable: true}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+    Shipment:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/ShipmentInput'
+    ShipmentPatch:
+      type: object
+      properties:
+        status: {$ref: '#/components/schemas/ShipmentStatus'}
+        estimatedArrivalAt: {type: string, format: date-time}
+        actualDepartureAt: {type: string, format: date-time}
+        deliveredAt: {type: string, format: date-time}
+        cancelledAt: {type: string, format: date-time}
+        cancellationReason: {type: string}
+        updatedAt: {type: string, format: date-time}
+    StatusChangeInput:
+      type: object
+      required: [shipmentId, newStatus, changedAt, changedBy]
+      properties:
+        shipmentId: {type: integer}
+        previousStatus:
+          type: string
+          enum: [planned, in_transit, delivered, cancelled, null]
+          nullable: true
+        newStatus: {$ref: '#/components/schemas/ShipmentStatus'}
+        changedAt: {type: string, format: date-time}
+        changedBy: {type: integer}
+        reason: {type: string, nullable: true}
+    StatusChange:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/StatusChangeInput'
+    ReportedPositionInput:
+      type: object
+      required: [shipmentId, latitude, longitude, reportedAt, source, recordedBy]
+      properties:
+        shipmentId: {type: integer}
+        latitude: {type: number, minimum: -90, maximum: 90}
+        longitude: {type: number, minimum: -180, maximum: 180}
+        reportedAt: {type: string, format: date-time}
+        recordedAt: {type: string, format: date-time}
+        source:
+          type: string
+          enum: [driver_call, whatsapp_message, gps_device, checkpoint]
+        recordedBy: {type: integer}
+        isDemo:
+          type: boolean
+          description: True for the seeded demonstrative positions.
+        note: {type: string}
+    ReportedPosition:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/ReportedPositionInput'
+    IncidentInput:
+      type: object
+      required: [shipmentId, type, description, estimatedDelayMinutes, occurredAt, reportedBy, idempotencyKey]
+      properties:
+        shipmentId: {type: integer}
+        type:
+          type: string
+          enum: [road_block, landslide, mechanical_failure, accident, heavy_traffic, weather, other]
+        description: {type: string}
+        estimatedDelayMinutes: {type: integer, minimum: 0}
+        occurredAt: {type: string, format: date-time}
+        reportedBy: {type: integer}
+        idempotencyKey: {type: string}
+        createdAt: {type: string, format: date-time}
+    Incident:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/IncidentInput'
+    NotificationInput:
+      type: object
+      required: [recipientId, shipmentId, shipmentCode, type, eventKey, payload, createdAt, isRead]
+      properties:
+        recipientId: {type: integer}
+        shipmentId: {type: integer}
+        shipmentCode: {type: string}
+        type:
+          type: string
+          enum: [incident, status_change]
+        eventKey:
+          type: string
+          description: '`incident-{id}` or `status-change-{id}`; one notification per recipient and event.'
+        payload:
+          type: object
+          description: Codes and values rendered in the language of the reader (incident type, delay, statuses).
+          additionalProperties: true
+        createdAt: {type: string, format: date-time}
+        isRead: {type: boolean}
+        readAt: {type: string, format: date-time, nullable: true}
+    Notification:
+      allOf:
+        - type: object
+          properties:
+            id: {type: integer}
+        - $ref: '#/components/schemas/NotificationInput'

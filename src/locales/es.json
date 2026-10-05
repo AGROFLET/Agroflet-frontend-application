@@ -1,0 +1,551 @@
+{
+  "routes": {
+    "dashboard": "Panel",
+    "shipments": "Envíos",
+    "new-shipment": "Nuevo envío",
+    "shipment-detail": "Detalle del envío",
+    "vehicles": "Vehículos",
+    "new-vehicle": "Nuevo vehículo",
+    "edit-vehicle": "Editar vehículo",
+    "drivers": "Conductores",
+    "new-driver": "Nuevo conductor",
+    "notifications": "Notificaciones",
+    "sign-in": "Iniciar sesión",
+    "sign-up": "Crear cuenta",
+    "password-recovery": "Recuperar contraseña",
+    "reset-password": "Restablecer contraseña",
+    "settings": "Configuración",
+    "about": "Nosotros",
+    "terms": "Términos del servicio",
+    "not-found": "Página no encontrada"
+  },
+  "common": {
+    "actions": "Acciones",
+    "all": "Todos",
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "last-update": "Última actualización",
+    "minutes": "min",
+    "optional": "opcional",
+    "save": "Guardar",
+    "save-changes": "Guardar cambios",
+    "select": "Seleccionar",
+    "tons": "{value} t",
+    "view-details": "Ver detalles"
+  },
+  "language": {
+    "change": "Cambiar idioma",
+    "en": "Inglés (Estados Unidos)",
+    "es": "Español (Latinoamérica)"
+  },
+  "navigation": {
+    "home": "Inicio de AgroFlet",
+    "main": "Navegación principal",
+    "skip-to-content": "Saltar al contenido principal",
+    "open-menu": "Abrir menú de navegación",
+    "dashboard": "Panel",
+    "shipments": "Envíos",
+    "new-shipment": "Registrar envío",
+    "vehicles": "Vehículos",
+    "drivers": "Conductores",
+    "notifications": "Notificaciones",
+    "settings": "Configuración",
+    "incoming-shipments": "Envíos entrantes",
+    "history": "Historial",
+    "dispatcher-workspace": "Espacio del despachador",
+    "buyer-workspace": "Espacio del comprador"
+  },
+  "footer": {
+    "team": "Equipo de desarrollo AgroFlet · NexaWeb",
+    "navigation": "Navegación del pie de página",
+    "terms": "Términos del servicio",
+    "about": "Nosotros",
+    "landing": "Landing page"
+  },
+  "about": {
+    "eyebrow": "Acerca de AgroFlet",
+    "title": "Nosotros",
+    "description": "AgroFlet es una startup tecnológica peruana que mejora la visibilidad, el control y la trazabilidad del transporte terrestre de alimentos.",
+    "mission-title": "Misión",
+    "mission": "Facilitar la coordinación entre quienes despachan y quienes reciben alimentos, mediante información logística compartida y registros de cada operación.",
+    "vision-title": "Visión",
+    "vision": "Convertirnos en una alternativa para gestionar y trazar el transporte agroalimentario en el Perú, con una expansión regional sujeta a la validación del modelo de negocio.",
+    "team-title": "Nuestro equipo",
+    "career": "Ingeniería de Software · UPC"
+  },
+  "terms": {
+    "eyebrow": "Legal",
+    "title": "Términos del servicio",
+    "description": "Condiciones, alcance del servicio y canal de contacto de la aplicación web AgroFlet.",
+    "simulation-notice": "Esta versión es un prototipo académico que funciona con una Fake API. No es un servicio logístico en operación: las posiciones, rutas y notificaciones son demostrativas y no reemplazan guías de remisión ni el rastreo GPS oficial.",
+    "contact": "Consultas sobre estos términos:",
+    "sections": [
+      {
+        "title": "1. Alcance del servicio",
+        "content": "AgroFlet permite a los despachadores registrar operaciones de transporte agrícola, asignar vehículos y conductores, y reportar incidencias y posiciones; y permite a los compradores consultar los envíos dirigidos a ellos."
+      },
+      {
+        "title": "2. Cuentas y roles",
+        "content": "Cada cuenta tiene un rol (despachador o comprador). El rol define las acciones disponibles y no se puede cambiar desde el perfil. Los usuarios son responsables de mantener la confidencialidad de sus credenciales."
+      },
+      {
+        "title": "3. Información geográfica",
+        "content": "El mapa distingue la ruta planificada de las posiciones reportadas. Cada posición muestra su fecha y su fuente; la existencia de un mapa no implica un rastreo GPS continuo, y la ubicación de la oficina del usuario nunca se atribuye al camión."
+      },
+      {
+        "title": "4. Datos personales",
+        "content": "Los datos personales se tratan conforme a la Ley N.° 29733, Ley de Protección de Datos Personales del Perú. Los compradores nunca ven el DNI de los conductores."
+      },
+      {
+        "title": "5. Disponibilidad",
+        "content": "Las funciones que aún están planificadas se identifican como tales y no se presentan como implementadas. Los precios mostrados en la landing page son propuestas y no generan cobros ni suscripciones."
+      },
+      {
+        "title": "6. Accesibilidad",
+        "content": "AgroFlet apunta al nivel AA de WCAG 2.1: navegación con teclado, foco visible, campos de formulario etiquetados, alternativas textuales y estados que nunca dependen solo del color (ícono, texto y color). La interfaz está disponible en inglés (Estados Unidos) y en español (Latinoamérica)."
+      },
+      {
+        "title": "7. Ética profesional",
+        "content": "El equipo desarrolla AgroFlet siguiendo el Código de Ética de Ingeniería de Software de ACM/IEEE y el Código de Ética del Colegio de Ingenieros del Perú (CIP): actuar en favor del interés público, nunca presentar datos demostrativos como reales, proteger la privacidad de usuarios y conductores, e informar con transparencia las limitaciones del producto."
+      }
+    ]
+  },
+  "page-not-found": {
+    "title": "Página no encontrada",
+    "content": "La ruta {route} no está disponible. Revisa la dirección o vuelve al panel.",
+    "go-home": "Ir al panel"
+  },
+  "dashboard": {
+    "greeting": "Hola, {name}",
+    "dispatcher-title": "Panel de envíos",
+    "dispatcher-description": "Operaciones activas, su estado, la llegada estimada y la última actualización.",
+    "buyer-title": "Tus envíos",
+    "buyer-description": "Envíos dirigidos a ti que están programados o en tránsito.",
+    "view-history": "Ver historial",
+    "map-title": "Rutas planificadas y posiciones reportadas",
+    "active-operations": "Operaciones activas",
+    "empty": "No hay envíos activos",
+    "dispatcher-empty-description": "Registra tu primer envío cuando tus vehículos y conductores estén listos.",
+    "buyer-empty-description": "Aquí aparecerán los nuevos envíos asociados a ti."
+  },
+  "iam": {
+    "fields": {
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirm-password": "Confirmar contraseña",
+      "current-password": "Contraseña actual",
+      "new-password": "Nueva contraseña",
+      "first-name": "Nombres",
+      "last-name": "Apellidos",
+      "phone": "Celular",
+      "company": "Empresa o cooperativa",
+      "user-type": "Tipo de cuenta",
+      "preferred-language": "Idioma preferido"
+    },
+    "roles": {
+      "dispatcher": "Despachador",
+      "buyer": "Comprador",
+      "dispatcher-hint": "Coordina envíos, vehículos y conductores desde el centro de acopio.",
+      "buyer-hint": "Sigue los envíos dirigidos a su mercado, almacén o tienda."
+    },
+    "segments": {
+      "dispatcher": {
+        "eyebrow": "Despachadores y acopiadores",
+        "description": "Inicia sesión para programar envíos, asignar tu flota y reportar incidencias."
+      },
+      "buyer": {
+        "eyebrow": "Compradores mayoristas",
+        "description": "Inicia sesión para saber cuándo llegan tus envíos y organizar la recepción."
+      }
+    },
+    "sign-in": {
+      "eyebrow": "Aplicación web AgroFlet",
+      "title": "Bienvenido de nuevo",
+      "description": "Inicia sesión para acceder a tus operaciones.",
+      "action": "Iniciar sesión",
+      "forgot-password": "¿Olvidaste tu contraseña?",
+      "no-account": "¿No tienes una cuenta?",
+      "demo-accounts": "Cuentas demo (Fake API): dispatcher{'@'}agroflet.pe o buyer{'@'}agroflet.pe · contraseña Agroflet2026"
+    },
+    "sign-up": {
+      "title": "Crea tu cuenta",
+      "description": "Tu tipo de cuenta define las acciones disponibles después de iniciar sesión.",
+      "demo-notice": "Demo académica: las cuentas se guardan en una Fake API pública y pueden reiniciarse en cualquier momento. No uses una contraseña real ni datos personales.",
+      "action": "Crear cuenta",
+      "submit": "Crear cuenta",
+      "accept-terms": "He leído y acepto los",
+      "has-account": "¿Ya tienes una cuenta?",
+      "success-title": "Cuenta creada",
+      "success-detail": "Inicia sesión con tu correo y contraseña para continuar."
+    },
+    "sign-out": {
+      "action": "Cerrar sesión",
+      "header": "Cerrar sesión",
+      "message": "¿Deseas cerrar tu sesión en este dispositivo?",
+      "accept": "Cerrar sesión"
+    },
+    "recovery": {
+      "eyebrow": "Recuperación de cuenta",
+      "title": "Restablece tu contraseña",
+      "description": "Ingresa el correo de tu cuenta y te enviaremos las instrucciones.",
+      "submit": "Enviar instrucciones",
+      "sent": "Si existe una cuenta con ese correo, recibirás instrucciones para restablecer tu contraseña.",
+      "demo-notice": "Modo demo: aún no hay servicio de correo, por eso el enlace de un solo uso se muestra aquí.",
+      "demo-link": "Abrir enlace de restablecimiento",
+      "back": "Volver a iniciar sesión"
+    },
+    "reset": {
+      "title": "Elige una nueva contraseña",
+      "description": "El enlace solo puede usarse una vez y vence a los 30 minutos.",
+      "submit": "Actualizar contraseña",
+      "success": "Contraseña actualizada. Inicia sesión con tu nueva contraseña.",
+      "request-new": "Solicitar un nuevo enlace"
+    },
+    "profile": {
+      "title": "Perfil y preferencias",
+      "description": "Mantén actualizados tus datos de contacto, tu contraseña y tu idioma.",
+      "data-title": "Datos personales",
+      "language-hint": "Los textos del sistema cambian a este idioma. El contenido escrito por los usuarios no se traduce.",
+      "readonly-hint": "El correo y el tipo de cuenta no se pueden cambiar desde este formulario.",
+      "saved": "Perfil actualizado"
+    },
+    "password": {
+      "title": "Cambiar contraseña",
+      "submit": "Cambiar contraseña",
+      "policy": "Después de cambiar tu contraseña, tu sesión se cierra y debes iniciar sesión nuevamente.",
+      "changed": "Contraseña cambiada",
+      "changed-detail": "Inicia sesión nuevamente con tu nueva contraseña.",
+      "prompt": "Ingresa una contraseña",
+      "weak": "Débil",
+      "medium": "Media",
+      "strong": "Fuerte"
+    }
+  },
+  "fleet": {
+    "eyebrow": "Recursos de transporte",
+    "fields": {
+      "plate": "Placa",
+      "vehicle": "Vehículo",
+      "brand": "Marca",
+      "model": "Modelo",
+      "year": "Año",
+      "capacity": "Capacidad",
+      "capacity-tons": "Capacidad de carga (t)",
+      "body-type": "Tipo de carrocería",
+      "status": "Estado",
+      "driver": "Conductor",
+      "dni": "DNI",
+      "license": "Licencia",
+      "license-number": "Número de licencia",
+      "license-category": "Categoría de licencia",
+      "phone": "Teléfono"
+    },
+    "status": {
+      "available": "Disponible",
+      "reserved": "Reservado",
+      "in_route": "En ruta",
+      "under_maintenance": "En mantenimiento",
+      "assigned": "Asignado"
+    },
+    "body-types": {
+      "refrigerated_van": "Furgón refrigerado",
+      "dry_van": "Furgón seco",
+      "stake_bed": "Baranda",
+      "flatbed": "Plataforma",
+      "tanker": "Cisterna",
+      "other": "Otro"
+    },
+    "vehicles": {
+      "title": "Vehículos",
+      "description": "Vehículos propios o contratados disponibles para tus envíos.",
+      "new": "Registrar vehículo",
+      "new-title": "Registrar vehículo",
+      "edit-title": "Editar {plate}",
+      "form-description": "La placa, la capacidad y el tipo de carrocería determinan qué envíos puede transportar el vehículo.",
+      "empty": "No hay vehículos registrados",
+      "empty-description": "Registra un vehículo para asignarlo a tus envíos.",
+      "registered": "Vehículo registrado",
+      "updated": "Vehículo actualizado",
+      "locked-notice": "Este vehículo está retenido por un envío activo: su estado y su capacidad no se pueden cambiar hasta que el envío se entregue o se cancele.",
+      "status-managed": "Gestionado por el envío"
+    },
+    "drivers": {
+      "title": "Conductores",
+      "description": "Conductores responsables del transporte y su disponibilidad.",
+      "new": "Registrar conductor",
+      "new-title": "Registrar conductor",
+      "form-description": "Datos de identidad, licencia y contacto del conductor.",
+      "empty": "No hay conductores registrados",
+      "empty-description": "Registra un conductor para asignarlo a tus envíos.",
+      "registered": "Conductor registrado"
+    }
+  },
+  "shipments": {
+    "eyebrow": "Envíos",
+    "status": {
+      "planned": "Programado",
+      "in_transit": "En tránsito",
+      "delivered": "Entregado",
+      "cancelled": "Cancelado"
+    },
+    "cargo-types": {
+      "potato": "Papa",
+      "carrot": "Zanahoria",
+      "onion": "Cebolla",
+      "fresh_fruit": "Fruta fresca",
+      "leafy_vegetables": "Hortalizas de hoja",
+      "grains": "Granos",
+      "other": "Otro"
+    },
+    "fields": {
+      "code": "Código",
+      "cargo": "Carga",
+      "cargo-type": "Tipo de carga",
+      "cargo-description": "Descripción de la carga",
+      "weight": "Peso (t)",
+      "origin": "Origen",
+      "destination": "Destino",
+      "route": "Ruta",
+      "buyer": "Comprador",
+      "vehicle": "Vehículo",
+      "driver": "Conductor",
+      "status": "Estado",
+      "planned-departure": "Salida programada",
+      "actual-departure": "Salida real",
+      "eta": "Llegada estimada",
+      "delivered-at": "Entregado el",
+      "cancelled-at": "Cancelado el"
+    },
+    "actions": {
+      "start": "Iniciar traslado",
+      "deliver": "Marcar como entregada",
+      "cancel": "Cancelar operación"
+    },
+    "history": {
+      "title": "Historial de envíos",
+      "buyer-title": "Historial de envíos",
+      "description": "Busca por código de envío o placa del vehículo y combina filtros por fecha, estado, carga y destino.",
+      "results": "{count} operación(es) encontrada(s)",
+      "empty": "No se encontraron operaciones",
+      "empty-description": "Ninguna operación coincide con los criterios ingresados. Limpia los filtros para ver la lista completa."
+    },
+    "filters": {
+      "title": "Búsqueda y filtros",
+      "search": "Código o placa",
+      "search-placeholder": "AGF-0001 o ABC-123",
+      "from": "Desde",
+      "to": "Hasta",
+      "apply": "Aplicar filtros",
+      "clear": "Limpiar filtros",
+      "active": "Filtros activos",
+      "remove": "Quitar filtro"
+    },
+    "form": {
+      "title": "Registrar envío",
+      "description": "Completa la carga, la ruta, el comprador y los recursos. El envío se crea como programado.",
+      "cargo-section": "Carga",
+      "route-section": "Ruta y comprador",
+      "resources-section": "Recursos de transporte",
+      "cargo-placeholder": "Ej. Papa amarilla en sacos de 50 kg",
+      "resources-hint": "Solo se pueden seleccionar recursos disponibles. Los no disponibles muestran su estado actual.",
+      "no-vehicles": "No hay vehículos disponibles. Registra uno.",
+      "no-drivers": "No hay conductores disponibles. Registra uno.",
+      "review": "Revisión",
+      "reservation-note": "La selección es provisional: el vehículo y el conductor se reservan solo cuando confirmas el envío.",
+      "confirm": "Confirmar envío",
+      "created": "Envío {code} registrado",
+      "created-detail": "El vehículo y el conductor fueron reservados."
+    },
+    "detail": {
+      "eyebrow": "Detalle del envío",
+      "back": "Volver a envíos",
+      "not-found": "Envío no disponible",
+      "not-found-description": "El envío no existe o no está asociado a tu cuenta.",
+      "terminal-notice": "Esta operación está cerrada y no se puede reabrir.",
+      "includes-delay": "Incluye {minutes} min de retrasos reportados",
+      "operation": "Operación",
+      "participants": "Participantes y recursos",
+      "created": "Envío registrado como programado",
+      "transition": "Estado cambiado de {from} a {to}",
+      "tabs": {
+        "summary": "Resumen",
+        "route": "Ruta planificada",
+        "positions": "Posiciones reportadas",
+        "incidents": "Incidencias",
+        "history": "Historial de estados"
+      }
+    },
+    "start": {
+      "header": "Iniciar traslado",
+      "message": "Confirma la salida efectiva de {code}. El envío pasará a en tránsito.",
+      "success": "{code} ahora está en tránsito"
+    },
+    "deliver": {
+      "header": "Registrar entrega",
+      "message": "Confirma que {code} fue descargado en el destino. El vehículo y el conductor quedarán liberados.",
+      "success": "{code} fue entregado"
+    },
+    "cancel": {
+      "title": "Cancelar {code}",
+      "warning": "Una operación cancelada no se puede reabrir. El vehículo y el conductor quedarán liberados.",
+      "reason": "Motivo de la cancelación",
+      "success": "{code} fue cancelado"
+    }
+  },
+  "tracking": {
+    "map-label": "Mapa con rutas planificadas y posiciones reportadas",
+    "planned-route": "Ruta planificada",
+    "reported-position": "Posición reportada",
+    "reported-at": "Reportada el",
+    "source": "Fuente",
+    "coordinates": "Coordenadas",
+    "reference": "Referencia",
+    "reference-placeholder": "Ej. Peaje de Ticlio",
+    "data-type": "Dato",
+    "demo-data": "Dato demostrativo",
+    "reported-data": "Reportado",
+    "last-position": "Última posición reportada",
+    "location-unavailable": "Ubicación no disponible",
+    "no-position": "Ubicación no disponible: aún no se ha reportado ninguna posición para este envío.",
+    "no-positions": "No hay posiciones reportadas",
+    "no-position-description": "Las posiciones aparecen cuando el despachador registra una ubicación recibida del conductor.",
+    "stale-message": "La última posición reportada está desactualizada. Última actualización: {date}.",
+    "stale-warning": "Posición desactualizada",
+    "route-unavailable": "Ruta planificada no disponible. Los datos del envío se conservan.",
+    "route-summary": "Línea de referencia entre el origen y el destino (≈ {km} km en línea recta). No es el recorrido realmente realizado.",
+    "disclaimer": "El mapa muestra la ruta planificada y las posiciones reportadas con su fecha y fuente. No es un rastreo GPS continuo.",
+    "register-position": "Registrar posición",
+    "register-hint": "Ingresa las coordenadas recibidas del conductor o de un punto de control. Tu propia ubicación nunca se usa como posición del camión.",
+    "position-registered": "Posición registrada",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "sources": {
+      "driver_call": "Llamada del conductor",
+      "whatsapp_message": "Mensaje de WhatsApp",
+      "gps_device": "Dispositivo GPS",
+      "checkpoint": "Punto de control vial"
+    },
+    "legend": {
+      "planned-route": "Ruta planificada",
+      "reported-position": "Posición reportada",
+      "last-position": "Última posición",
+      "stale-position": "Última posición desactualizada"
+    }
+  },
+  "incidents": {
+    "register": "Registrar incidencia",
+    "register-hint": "Reporta un evento que afecta a {code}. La llegada estimada se recalcula una sola vez.",
+    "type": "Tipo de incidencia",
+    "description": "Descripción",
+    "estimated-delay": "Retraso estimado",
+    "occurred-at": "Ocurrió el",
+    "delay": "+{minutes} min",
+    "registered": "Incidencia registrada",
+    "duplicated": "La incidencia ya fue registrada",
+    "eta-updated": "La llegada estimada se actualizó y se notificó a los participantes.",
+    "empty": "No hay incidencias",
+    "empty-description": "No se han reportado incidencias para este envío.",
+    "types": {
+      "road_block": "Bloqueo de vía",
+      "landslide": "Huaico o deslizamiento",
+      "mechanical_failure": "Falla mecánica",
+      "accident": "Accidente",
+      "heavy_traffic": "Tráfico intenso",
+      "weather": "Condiciones climáticas",
+      "other": "Otro"
+    }
+  },
+  "notifications": {
+    "eyebrow": "Alertas",
+    "title": "Notificaciones",
+    "description": "Incidencias y cambios de estado de los envíos en los que participas.",
+    "mark-all": "Marcar todas como leídas",
+    "mark-read": "Marcar como leída",
+    "new": "Nueva",
+    "empty": "No hay notificaciones",
+    "empty-description": "Se te notificará sobre las incidencias y los cambios de estado de tus envíos.",
+    "unread-count": "Notificaciones, {count} sin leer",
+    "filters": {
+      "all": "Todas",
+      "unread": "No leídas"
+    },
+    "incident-title": "Nueva incidencia en {code}",
+    "incident-message": "Se reportó: {type}. Retraso estimado: {minutes} min.",
+    "status-title": "{code}: {status}",
+    "status-message": "El estado cambió de {from} a {to}.",
+    "created-message": "Se programó un nuevo envío para ti."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "email": "Ingresa un correo válido (nombre{'@'}empresa.com).",
+    "password": "Al menos {min} caracteres, con letras y números.",
+    "passwords-match": "Las contraseñas no coinciden.",
+    "phone": "9 dígitos que empiecen con 9.",
+    "accept-terms": "Debes aceptar los términos del servicio.",
+    "plate": "Formato ABC-123.",
+    "year": "Ingresa un año entre 1980 y el próximo año.",
+    "capacity": "La capacidad debe ser mayor que 0.",
+    "dni": "8 dígitos.",
+    "license": "Una letra seguida de 8 dígitos (ej. Q12345678).",
+    "latitude": "Entre -90 y 90.",
+    "longitude": "Entre -180 y 180.",
+    "not-future": "La fecha no puede estar en el futuro.",
+    "source": "Selecciona la fuente de la posición.",
+    "delay": "Minutos, 0 o más.",
+    "reason": "Ingresa el motivo de la cancelación."
+  },
+  "errors": {
+    "unexpected": "Algo salió mal. Inténtalo de nuevo.",
+    "network": "No se pudo conectar con el servicio. Revisa tu conexión e inténtalo de nuevo.",
+    "api-unavailable": "La API de AgroFlet no está disponible. Inicia la Fake API (npm run server) y recarga la página.",
+    "not-found": "El registro no existe o no está asociado a tu cuenta.",
+    "forbidden": "Tu cuenta no puede realizar esta acción.",
+    "invalid-credentials": "El correo o la contraseña son incorrectos. Revisa tus datos e inténtalo de nuevo.",
+    "email-taken": "Ya existe una cuenta con ese correo. Inicia sesión o usa otro correo.",
+    "wrong-current-password": "La contraseña actual es incorrecta. Tu contraseña no se cambió.",
+    "invalid-reset-token": "El enlace de restablecimiento no es válido, venció o ya fue usado. Solicita uno nuevo.",
+    "invalid-transition": "La operación no puede pasar a ese estado desde su estado actual.",
+    "reason-required": "Ingresa el motivo de la cancelación.",
+    "not-in-transit": "Esta acción solo está disponible mientras el envío está en tránsito.",
+    "plate-duplicated": "Ya existe un vehículo con esa placa en tu flota.",
+    "dni-duplicated": "Ya existe un conductor con ese DNI en tu flota.",
+    "status-locked": "El vehículo está retenido por un envío activo; su estado no se puede cambiar ahora.",
+    "capacity-locked": "La capacidad no puede cambiar mientras un envío retiene el vehículo.",
+    "vehicle-unavailable": "El vehículo seleccionado ya no está disponible. Elige otro.",
+    "driver-unavailable": "El conductor seleccionado ya no está disponible. Elige otro.",
+    "inverted-range": "La fecha de inicio es posterior a la fecha de fin. Corrige el rango.",
+    "arrival-before-departure": "La llegada estimada debe ser posterior a la salida programada.",
+    "same-origin-destination": "El origen y el destino deben ser diferentes.",
+    "weight-positive": "El peso debe ser mayor que 0.",
+    "weight-exceeds-capacity": "El peso supera la capacidad del vehículo seleccionado.",
+    "buyer-required": "Selecciona el comprador.",
+    "origin-required": "Selecciona el origen.",
+    "destination-required": "Selecciona el destino.",
+    "vehicle-required": "Selecciona un vehículo.",
+    "driver-required": "Selecciona un conductor.",
+    "departure-required": "Ingresa la salida programada.",
+    "arrival-required": "Ingresa la llegada estimada.",
+    "plate-format": "La placa debe seguir el formato ABC-123.",
+    "brand-required": "Ingresa la marca.",
+    "model-required": "Ingresa el modelo.",
+    "year-range": "Ingresa un año válido.",
+    "capacity-positive": "La capacidad debe ser mayor que 0.",
+    "first-name-required": "Ingresa los nombres.",
+    "last-name-required": "Ingresa los apellidos.",
+    "dni-format": "El DNI debe tener 8 dígitos.",
+    "license-format": "El número de licencia no es válido.",
+    "license-category": "Selecciona una categoría de licencia.",
+    "phone-format": "El teléfono debe tener 9 dígitos y empezar con 9.",
+    "type-required": "Selecciona el tipo de incidencia.",
+    "description-required": "Ingresa una descripción.",
+    "delay-non-negative": "El retraso debe ser de 0 minutos o más.",
+    "occurred-at-required": "Ingresa cuándo ocurrió.",
+    "occurred-at-future": "La fecha no puede estar en el futuro.",
+    "latitude-range": "Latitud fuera de rango.",
+    "longitude-range": "Longitud fuera de rango.",
+    "source-required": "Selecciona la fuente de la posición.",
+    "reported-at-required": "Ingresa cuándo se reportó la posición.",
+    "reported-at-future": "La fecha no puede estar en el futuro."
+  }
+}
