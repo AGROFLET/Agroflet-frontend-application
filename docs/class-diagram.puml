@@ -1,0 +1,878 @@
+@startuml
+title AgroFlet Frontend Web Application - Class Diagram (Sprint 2)
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+
+package "IAM (Identity & Access Management) Bounded Context" as iam {
+    package "Domain" as iam_domain {
+        enum UserType <<enumeration>> {
+            DISPATCHER
+            BUYER
+        }
+
+        class User <<entity>> {
+            - id: number|null
+            - firstName: string
+            - lastName: string
+            - email: string
+            - userType: UserType
+            - phone: string
+            - companyName: string
+            - preferredLanguage: string
+            + constructor(params)
+            + get fullName(): string
+            + get isDispatcher(): boolean
+            + get isBuyer(): boolean
+        }
+
+        class SignInCommand <<command>> {
+            - email: string
+            - password: string
+            + constructor(params)
+        }
+
+        class SignUpCommand <<command>> {
+            - firstName: string
+            - lastName: string
+            - email: string
+            - password: string
+            - userType: UserType
+            - phone: string
+            - companyName: string
+            - preferredLanguage: string
+            + constructor(params)
+        }
+
+        class UpdateProfileCommand <<command>> {
+            - firstName: string
+            - lastName: string
+            - phone: string
+            - companyName: string
+            - preferredLanguage: string
+            + constructor(params)
+        }
+
+        class ChangePasswordCommand <<command>> {
+            - currentPassword: string
+            - newPassword: string
+            + constructor(params)
+        }
+
+        class PasswordPolicy <<policy>> {
+            + {static} PASSWORD_MIN_LENGTH: number = 8
+            + {static} isValidEmail(email): boolean
+            + {static} isValidPassword(password): boolean
+            + {static} isValidPhone(phone): boolean
+        }
+    }
+
+    package "Infrastructure" as iam_infrastructure {
+        class SignInResource <<resource>> {
+            - id: number
+            - email: string
+            - userType: string
+            - accessToken: string
+            - expiresIn: number
+            + constructor(params)
+        }
+
+        class UserAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): User
+            + {static} toEntitiesFromResponse(response): User[]
+            + {static} toResourceFromSignUpCommand(command): object
+        }
+
+        class IamError <<error>> {
+            - code: string
+            + constructor(code)
+        }
+
+        class IamApi {
+            - usersEndpoint: BaseEndpoint
+            - passwordResetRequestsEndpoint: BaseEndpoint
+            + constructor()
+            + signIn(command): Promise<SignInResource>
+            + signUp(command): Promise
+            + getUserById(id): Promise
+            + getUsersByType(userType): Promise
+            + updateProfile(id, command): Promise
+            + changePassword(id, command): Promise
+            + requestPasswordReset(email): Promise
+            + resetPassword(token, newPassword): Promise
+        }
+
+        class SessionStorage <<storage>> {
+            + {static} saveSession(session)
+            + {static} loadSession(): object|null
+            + {static} clearSession()
+        }
+
+        class authenticationGuard <<guard>> {
+            + {static} authenticationGuard(to): RouteLocation|boolean
+        }
+
+        class iamInterceptor <<interceptor>> {
+            + {static} iamInterceptor(config): AxiosRequestConfig
+        }
+    }
+
+    package "Application" as iam_application {
+        class IamStore <<store>> {
+            - currentUser: User|null
+            - accessToken: string|null
+            - errors: any[]
+            - buyers: User[]
+            - sessionRestored: boolean
+            + isSignedIn: computed
+            + isDispatcher: computed
+            + isBuyer: computed
+            + currentUserId: computed
+            + restoreSession()
+            + signIn(command): boolean
+            + signUp(command): boolean
+            + signOut()
+            + updateProfile(command): boolean
+            + savePreferredLanguage(locale)
+            + changePassword(command): boolean
+            + requestPasswordReset(email): object
+            + resetPassword(token, newPassword): boolean
+            + fetchBuyers()
+            + findUserById(id): User|null
+        }
+    }
+
+    package "Presentation" as iam_presentation {
+        class SignInForm <<component>> {
+            - form: object
+            - segment: computed
+            - failed: boolean
+            + performSignIn()
+        }
+
+        class SignUpForm <<component>> {
+            - form: object
+            - validation: computed
+            + performSignUp()
+        }
+
+        class PasswordRecovery <<component>> {
+            - email: string
+            - sent: boolean
+            + requestRecovery()
+        }
+
+        class ResetPassword <<component>> {
+            - password: string
+            - confirmPassword: string
+            - rejected: boolean
+            + performReset()
+        }
+
+        class ProfileSettings <<component>> {
+            - profile: object
+            - passwords: object
+            + saveProfile()
+            + savePassword()
+        }
+
+        class AuthenticationSection <<component>> {
+            - initials: computed
+            + performSignOut()
+        }
+
+        class useSignOut <<composable>> {
+            + signOut()
+        }
+    }
+}
+
+package "Fleet & Resource Management Bounded Context" as fleet {
+    package "Domain" as fleet_domain {
+        enum VehicleStatus <<enumeration>> {
+            AVAILABLE
+            RESERVED
+            IN_ROUTE
+            UNDER_MAINTENANCE
+        }
+
+        enum DriverStatus <<enumeration>> {
+            AVAILABLE
+            ASSIGNED
+        }
+
+        class Vehicle <<entity>> {
+            - id: number|null
+            - dispatcherId: number
+            - plate: string
+            - brand: string
+            - model: string
+            - year: number
+            - capacityTons: number
+            - bodyType: string
+            - status: VehicleStatus
+            - updatedAt: string
+            + constructor(params)
+            + get isAvailable(): boolean
+            + get isLockedByShipment(): boolean
+            + get label(): string
+            + canChangeStatusTo(newStatus): boolean
+            + validate(): string[]
+        }
+
+        class Driver <<entity>> {
+            - id: number|null
+            - dispatcherId: number
+            - firstName: string
+            - lastName: string
+            - dni: string
+            - licenseNumber: string
+            - licenseCategory: string
+            - phone: string
+            - status: DriverStatus
+            - updatedAt: string
+            + constructor(params)
+            + get fullName(): string
+            + get isAvailable(): boolean
+            + get label(): string
+            + validate(): string[]
+        }
+    }
+
+    package "Infrastructure" as fleet_infrastructure {
+        class VehicleAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): Vehicle
+            + {static} toEntitiesFromResponse(response): Vehicle[]
+            + {static} toResourceFromEntity(vehicle): object
+        }
+
+        class DriverAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): Driver
+            + {static} toEntitiesFromResponse(response): Driver[]
+            + {static} toResourceFromEntity(driver): object
+        }
+
+        class FleetApi {
+            - vehiclesEndpoint: BaseEndpoint
+            - driversEndpoint: BaseEndpoint
+            + constructor()
+            + getVehicles(params): Promise
+            + getVehicleById(id): Promise
+            + createVehicle(resource): Promise
+            + patchVehicle(id, changes): Promise
+            + getDrivers(params): Promise
+            + getDriverById(id): Promise
+            + createDriver(resource): Promise
+            + patchDriver(id, changes): Promise
+        }
+    }
+
+    package "Application" as fleet_application {
+        class FleetStore <<store>> {
+            - vehicles: Vehicle[]
+            - drivers: Driver[]
+            - vehiclesLoaded: boolean
+            - driversLoaded: boolean
+            - errors: any[]
+            + availableVehicles: computed
+            + availableDrivers: computed
+            + fetchVehicles()
+            + fetchVehiclesByIds(ids)
+            + getVehicleById(id): Vehicle
+            + addVehicle(vehicle): Result
+            + updateVehicle(vehicle): Result
+            + fetchDrivers()
+            + addDriver(driver): Result
+            + findDriverById(id): Driver
+            + findVehicleById(id): Vehicle
+            + checkAvailability(vehicleId, driverId): Result
+            + reserveResources(vehicleId, driverId)
+            + lockResourcesInRoute(vehicleId, driverId)
+            + releaseResources(vehicleId, driverId)
+            + reset()
+        }
+    }
+
+    package "Presentation" as fleet_presentation {
+        class VehicleList <<component>> {
+            - vehicles: Vehicle[]
+        }
+
+        class VehicleForm <<component>> {
+            - form: object
+            - isEdit: computed
+            - isLocked: computed
+            + saveVehicle()
+        }
+
+        class DriverList <<component>> {
+            - drivers: Driver[]
+        }
+
+        class DriverForm <<component>> {
+            - form: object
+            + saveDriver()
+        }
+
+        class ResourceStatusTag <<component>> {
+            - status: string
+        }
+    }
+}
+
+package "Shipment & Dispatch Operations Bounded Context (Core)" as shipments {
+    package "Domain" as shipments_domain {
+        enum ShipmentStatus <<enumeration>> {
+            PLANNED
+            IN_TRANSIT
+            DELIVERED
+            CANCELLED
+        }
+
+        class Shipment <<aggregate root>> {
+            - id: number|null
+            - code: string
+            - dispatcherId: number
+            - buyerId: number
+            - cargoType: string
+            - cargoDescription: string
+            - weightTons: number
+            - originId: number
+            - destinationId: number
+            - vehicleId: number
+            - driverId: number
+            - status: ShipmentStatus
+            - plannedDepartureAt: string
+            - estimatedArrivalAt: string
+            - actualDepartureAt: string|null
+            - deliveredAt: string|null
+            - cancelledAt: string|null
+            - cancellationReason: string|null
+            - createdAt: string
+            - updatedAt: string
+            + constructor(params)
+            + get isActive(): boolean
+            + get isTerminal(): boolean
+            + get canStartTransit(): boolean
+            + get canBeDelivered(): boolean
+            + get canBeCancelled(): boolean
+            + get acceptsTravelEvents(): boolean
+            + validateForCreation(vehicle): string[]
+            + startTransit(at)
+            + markAsDelivered(at)
+            + cancel(reason, at)
+            + applyDelay(minutes, at)
+        }
+
+        class ShipmentTransitionError <<error>> {
+            - code: string
+            + constructor(code)
+        }
+
+        class Location <<entity>> {
+            - id: number
+            - name: string
+            - city: string
+            - region: string
+            - latitude: number|null
+            - longitude: number|null
+            - kind: string
+            + constructor(params)
+            + get label(): string
+            + get isGeoreferenced(): boolean
+        }
+
+        class StatusChange <<entity>> {
+            - id: number|null
+            - shipmentId: number
+            - previousStatus: ShipmentStatus|null
+            - newStatus: ShipmentStatus
+            - changedAt: string
+            - changedBy: number
+            - reason: string|null
+            + constructor(params)
+        }
+
+        class ShipmentFilter <<value object>> {
+            - term: string
+            - status: ShipmentStatus|null
+            - cargoType: string|null
+            - destinationId: number|null
+            - startDate: Date|null
+            - endDate: Date|null
+            + constructor(params)
+            + get hasInvertedRange(): boolean
+            + get isActive(): boolean
+            + matches(shipment, plate): boolean
+        }
+    }
+
+    package "Infrastructure" as shipments_infrastructure {
+        class ShipmentAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): Shipment
+            + {static} toEntitiesFromResponse(response): Shipment[]
+            + {static} toResourceFromEntity(shipment): object
+        }
+
+        class LocationAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): Location
+            + {static} toEntitiesFromResponse(response): Location[]
+        }
+
+        class StatusChangeAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): StatusChange
+            + {static} toEntitiesFromResponse(response): StatusChange[]
+        }
+
+        class ShipmentsApi {
+            - shipmentsEndpoint: BaseEndpoint
+            - statusChangesEndpoint: BaseEndpoint
+            - locationsEndpoint: BaseEndpoint
+            + constructor()
+            + getShipments(params): Promise
+            + getShipmentById(id): Promise
+            + createShipment(resource): Promise
+            + patchShipment(id, changes): Promise
+            + deleteShipment(id): Promise
+            + getStatusChanges(shipmentId): Promise
+            + createStatusChange(resource): Promise
+            + getLocations(): Promise
+        }
+    }
+
+    package "Application" as shipments_application {
+        class ShipmentsStore <<store>> {
+            - shipments: Shipment[]
+            - locations: Location[]
+            - vehiclePlates: object
+            - shipmentsLoaded: boolean
+            - errors: any[]
+            - filter: ShipmentFilter
+            + activeShipments: computed
+            + filteredShipments: computed
+            + countByStatus: computed
+            + fetchLocations()
+            + getLocationById(id): Location
+            + fetchShipments()
+            + fetchShipmentById(id): Shipment|null
+            + createShipment(draft): Result
+            + startTransit(shipment): Result
+            + markAsDelivered(shipment): Result
+            + cancelShipment(shipment, reason): Result
+            + applyIncidentDelay(shipmentId, minutes): Result
+            + touchShipment(shipmentId)
+            + fetchStatusChanges(shipmentId): StatusChange[]
+            + setFilter(criteria)
+            + clearFilter()
+            + reset()
+        }
+    }
+
+    package "Presentation" as shipments_presentation {
+        class ShipmentDashboard <<component>> {
+            - kpis: computed
+            - mapItems: computed
+            - selectedId: number|null
+        }
+
+        class ShipmentList <<component>> {
+            - criteria: object
+            - invertedRange: computed
+            + applyFilters()
+            + clearFilters()
+            + removeChip(key)
+            + openShipment(event)
+        }
+
+        class ShipmentForm <<component>> {
+            - form: object
+            - draft: computed
+            + confirmShipment()
+        }
+
+        class ShipmentDetail <<component>> {
+            - shipment: computed
+            - activeTab: string
+            - lastPosition: computed
+            + loadShipment()
+            + confirmStart()
+            + confirmDelivery()
+            + cancelWithReason(reason)
+        }
+
+        class CancelShipmentDialog <<component>> {
+            - reason: string
+            + confirmCancellation()
+        }
+
+        class ShipmentStatusTag <<component>> {
+            - status: ShipmentStatus
+        }
+    }
+}
+
+package "Real-Time Tracking & Route Telemetry Bounded Context" as tracking {
+    package "Domain" as tracking_domain {
+        class ReportedPosition <<entity>> {
+            - id: number|null
+            - shipmentId: number
+            - latitude: number
+            - longitude: number
+            - reportedAt: string
+            - recordedAt: string
+            - source: string
+            - recordedBy: number
+            - isDemo: boolean
+            - note: string
+            + {static} STALE_POSITION_MINUTES: number = 180
+            + constructor(params)
+            + isStale(now): boolean
+            + validate(): string[]
+        }
+
+        class PlannedRoute <<value object>> {
+            - origin: Location
+            - destination: Location
+            + constructor(params)
+            + get isAvailable(): boolean
+            + get straightDistanceKm(): number|null
+        }
+    }
+
+    package "Infrastructure" as tracking_infrastructure {
+        class ReportedPositionAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): ReportedPosition
+            + {static} toEntitiesFromResponse(response): ReportedPosition[]
+            + {static} toResourceFromEntity(position): object
+        }
+
+        class TrackingApi {
+            - positionsEndpoint: BaseEndpoint
+            + constructor()
+            + getPositions(shipmentId): Promise
+            + createPosition(resource): Promise
+        }
+    }
+
+    package "Application" as tracking_application {
+        class TrackingStore <<store>> {
+            - positionsByShipment: object
+            - errors: any[]
+            + fetchPositions(shipmentIds)
+            + getLastPosition(shipmentId): ReportedPosition|null
+            + getPlannedRoute(shipment): PlannedRoute
+            + registerPosition(shipment, position): Result
+            + reset()
+        }
+    }
+
+    package "Presentation" as tracking_presentation {
+        class ShipmentMap <<component>> {
+            - items: object[]
+            - container: HTMLElement
+            + render()
+        }
+
+        class PositionList <<component>> {
+            - positions: ReportedPosition[]
+            - last: computed
+        }
+
+        class RegisterPositionDialog <<component>> {
+            - form: object
+            + savePosition()
+        }
+    }
+}
+
+package "Incident, Alert & Audit Management Bounded Context" as incidents {
+    package "Domain" as incidents_domain {
+        enum NotificationType <<enumeration>> {
+            INCIDENT
+            STATUS_CHANGE
+        }
+
+        class Incident <<entity>> {
+            - id: number|null
+            - shipmentId: number
+            - type: string
+            - description: string
+            - estimatedDelayMinutes: number
+            - occurredAt: string
+            - reportedBy: number
+            - idempotencyKey: string
+            - createdAt: string
+            + constructor(params)
+            + validate(): string[]
+            + {static} createIdempotencyKey(): string
+        }
+
+        class Notification <<entity>> {
+            - id: number|null
+            - recipientId: number
+            - shipmentId: number
+            - shipmentCode: string
+            - type: NotificationType
+            - eventKey: string
+            - payload: object
+            - createdAt: string
+            - isRead: boolean
+            - readAt: string|null
+            + constructor(params)
+        }
+    }
+
+    package "Infrastructure" as incidents_infrastructure {
+        class IncidentAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): Incident
+            + {static} toEntitiesFromResponse(response): Incident[]
+            + {static} toResourceFromEntity(incident): object
+        }
+
+        class NotificationAssembler <<assembler>> {
+            + {static} toEntityFromResource(resource): Notification
+            + {static} toEntitiesFromResponse(response): Notification[]
+        }
+
+        class IncidentsApi {
+            - incidentsEndpoint: BaseEndpoint
+            - notificationsEndpoint: BaseEndpoint
+            + constructor()
+            + getIncidents(params): Promise
+            + createIncident(resource): Promise
+            + getNotifications(params): Promise
+            + createNotification(resource): Promise
+            + patchNotification(id, changes): Promise
+        }
+    }
+
+    package "Application" as incidents_application {
+        class IncidentsStore <<store>> {
+            - incidentsByShipment: object
+            - errors: any[]
+            + fetchIncidents(shipmentId): Incident[]
+            + registerIncident(shipment, incident): Result
+            + reset()
+        }
+
+        class NotificationsStore <<store>> {
+            - notifications: Notification[]
+            - notificationsLoaded: boolean
+            - errors: any[]
+            + unreadCount: computed
+            + fetchNotifications()
+            + markAsRead(notification)
+            + markAllAsRead()
+            + publish(event)
+            + reset()
+        }
+    }
+
+    package "Presentation" as incidents_presentation {
+        class IncidentFormDialog <<component>> {
+            - form: object
+            - idempotencyKey: string
+            + saveIncident()
+        }
+
+        class IncidentList <<component>> {
+            - incidents: Incident[]
+        }
+
+        class NotificationList <<component>> {
+            - view: string
+            - visibleNotifications: computed
+            + titleOf(notification): string
+            + messageOf(notification): string
+            + openNotification(notification)
+        }
+    }
+}
+
+package "Shared Bounded Context" as shared {
+    package "Infrastructure" as shared_infrastructure {
+        class BaseApi {
+            - http: AxiosInstance
+            + constructor()
+            + get http(): AxiosInstance
+        }
+
+        class BaseEndpoint {
+            - http: AxiosInstance
+            - endpointPath: string
+            + constructor(baseApi, endpointPath)
+            + getAll(params): Promise
+            + getById(id): Promise
+            + create(resource): Promise
+            + update(id, resource): Promise
+            + patch(id, changes): Promise
+            + delete(id): Promise
+        }
+
+        class ResponseUtil <<utility>> {
+            + {static} extractCollection(response, key): object[]
+        }
+
+        class OpenStreetMapTiles <<external service>> {
+            + tileUrl: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+        }
+    }
+
+    package "Presentation" as shared_presentation {
+        class Layout <<component>> {
+            - drawerVisible: boolean
+            - navigationItems: computed
+            - showWorkspace: computed
+            + isActive(path): boolean
+        }
+
+        class LanguageSwitcher <<component>> {
+            - selectedLocale: computed
+        }
+
+        class FooterContent <<component>>
+        class BrandLogo <<component>>
+        class PageHeader <<component>>
+        class EmptyState <<component>>
+        class About <<component>>
+        class TermsOfService <<component>>
+        class PageNotFound <<component>>
+
+        class useErrorMessage <<composable>> {
+            + errorMessage(code): string
+        }
+
+        class useFormatters <<composable>> {
+            + formatDateTime(iso): string
+            + formatDate(iso): string
+            + formatRelative(iso): string
+            + formatTons(value): string
+        }
+    }
+}
+
+' ===== Relationships (declared after every class so names resolve to a single element) =====
+
+' IAM (Identity & Access Management) Bounded Context
+User --> UserType
+SignUpCommand --> UserType
+SignUpCommand ..> PasswordPolicy
+ChangePasswordCommand ..> PasswordPolicy
+IamApi --> SignInResource
+IamApi ..> IamError
+authenticationGuard --> IamStore
+iamInterceptor ..> SessionStorage
+IamStore --> IamApi
+IamStore --> UserAssembler
+IamStore --> SessionStorage
+IamStore --> User
+SignInForm --> IamStore
+SignInForm ..> SignInCommand
+SignUpForm --> IamStore
+SignUpForm ..> SignUpCommand
+PasswordRecovery --> IamStore
+ResetPassword --> IamStore
+ProfileSettings --> IamStore
+ProfileSettings ..> UpdateProfileCommand
+ProfileSettings ..> ChangePasswordCommand
+ProfileSettings --> useSignOut
+AuthenticationSection --> useSignOut
+useSignOut --> IamStore
+
+' Fleet & Resource Management Bounded Context
+Vehicle --> VehicleStatus
+Driver --> DriverStatus
+FleetStore --> FleetApi
+FleetStore --> VehicleAssembler
+FleetStore --> DriverAssembler
+FleetStore --> IamStore : current dispatcher
+VehicleList --> FleetStore
+VehicleForm --> FleetStore
+DriverList --> FleetStore
+DriverForm --> FleetStore
+VehicleList --> ResourceStatusTag
+DriverList --> ResourceStatusTag
+
+' Shipment & Dispatch Operations Bounded Context (Core)
+Shipment --> ShipmentStatus
+Shipment ..> ShipmentTransitionError : throws
+Shipment "*" --> "1" Location : origin
+Shipment "*" --> "1" Location : destination
+Shipment "1" *-- "*" StatusChange : history
+ShipmentFilter ..> Shipment
+ShipmentsStore --> ShipmentsApi
+ShipmentsStore --> ShipmentAssembler
+ShipmentsStore --> LocationAssembler
+ShipmentsStore --> StatusChangeAssembler
+ShipmentsStore --> FleetStore : reserve / lock / release resources
+ShipmentsStore --> IamStore : participant scope
+ShipmentsStore --> NotificationsStore : publish status changes
+ShipmentDashboard --> ShipmentsStore
+ShipmentList --> ShipmentsStore
+ShipmentForm --> ShipmentsStore
+ShipmentForm --> FleetStore
+ShipmentDetail --> ShipmentsStore
+ShipmentDetail --> CancelShipmentDialog
+ShipmentList --> ShipmentStatusTag
+ShipmentDetail --> ShipmentStatusTag
+
+' Real-Time Tracking & Route Telemetry Bounded Context
+PlannedRoute --> Location
+TrackingStore --> TrackingApi
+TrackingStore --> ReportedPositionAssembler
+TrackingStore --> ShipmentsStore : locations / touch
+ShipmentMap --> TrackingStore
+ShipmentMap ..> OpenStreetMapTiles : external service
+PositionList --> TrackingStore
+RegisterPositionDialog --> TrackingStore
+ShipmentDashboard --> ShipmentMap
+ShipmentDetail --> ShipmentMap
+ShipmentDetail --> PositionList
+ShipmentDetail --> RegisterPositionDialog
+
+' Incident, Alert & Audit Management Bounded Context
+Notification --> NotificationType
+IncidentsStore --> IncidentsApi
+IncidentsStore --> IncidentAssembler
+IncidentsStore --> ShipmentsStore : apply ETA delay once
+IncidentsStore --> NotificationsStore : publish incident alert
+NotificationsStore --> IncidentsApi
+NotificationsStore --> NotificationAssembler
+NotificationsStore --> IamStore : recipient
+IncidentFormDialog --> IncidentsStore
+IncidentList --> IncidentsStore
+NotificationList --> NotificationsStore
+ShipmentDetail --> IncidentFormDialog
+ShipmentDetail --> IncidentList
+
+' Shared Bounded Context
+BaseEndpoint --> BaseApi
+BaseApi ..> iamInterceptor
+Layout --> LanguageSwitcher
+Layout --> FooterContent
+Layout --> BrandLogo
+Layout --> AuthenticationSection
+LanguageSwitcher --> IamStore : preferred language
+
+' Shared infrastructure and references by identity between aggregates
+IamApi --|> BaseApi
+FleetApi --|> BaseApi
+ShipmentsApi --|> BaseApi
+TrackingApi --|> BaseApi
+IncidentsApi --|> BaseApi
+IamApi --> BaseEndpoint
+FleetApi --> BaseEndpoint
+ShipmentsApi --> BaseEndpoint
+TrackingApi --> BaseEndpoint
+IncidentsApi --> BaseEndpoint
+
+Shipment ..> Vehicle : vehicleId
+Shipment ..> Driver : driverId
+Shipment ..> User : dispatcherId / buyerId
+ReportedPosition ..> Shipment : shipmentId
+Incident ..> Shipment : shipmentId
+Notification ..> User : recipientId
+Vehicle ..> User : dispatcherId
+Driver ..> User : dispatcherId
+@enduml
