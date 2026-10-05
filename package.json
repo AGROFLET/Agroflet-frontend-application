@@ -1,7 +1,7 @@
 {
   "name": "agroflet-frontend-application",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AgroFlet Frontend Web Application. Coordination and traceability platform for agricultural freight in Peru, organized with Domain-Driven Design bounded contexts. Built with Vue, Vite, Pinia, PrimeVue, Vue I18n and Axios.",
   "type": "module",
   "scripts": {
