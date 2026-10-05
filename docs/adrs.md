@@ -21,6 +21,7 @@ consequences.
 - [ADR-011: Idempotent incidents and deduplicated notifications](#adr-011-idempotent-incidents-and-deduplicated-notifications)
 - [ADR-012: Vercel hosting with the Fake API as a Vercel Function](#adr-012-vercel-hosting-with-the-fake-api-as-a-vercel-function)
 - [ADR-013: GitHub Pages publication with GitHub Actions, using the Fake API on Vercel](#adr-013-github-pages-publication-with-github-actions-using-the-fake-api-on-vercel)
+- [ADR-014: Upstash Redis storage for the deployed Fake API](#adr-014-upstash-redis-storage-for-the-deployed-fake-api)
 
 ---
 
@@ -164,8 +165,8 @@ relative base URL as in production. `npm run server` runs it alone at `http://lo
   terminal or port of its own.
 - **Negative:** the Fake API is not secure (it returns stored passwords to the client) and must only contain demo data;
   it will be replaced by the RESTful API, which issues real tokens and never returns passwords. Data written through
-  `npm run dev` returns to the seed when that server restarts, and in the deployed application whenever a new function
-  instance starts (see ADR-012).
+  `npm run dev` returns to the seed when that server restarts; the deployed application keeps it in Upstash Redis (see
+  ADR-014).
 
 ---
 
@@ -282,7 +283,7 @@ key before creating one, and only a new incident applies the delay to the estima
 ## ADR-012: Vercel hosting with the Fake API as a Vercel Function
 
 ### Status
-Accepted (the Fake API part is temporary until the RESTful API is deployed)
+Accepted (the Fake API part is temporary until the RESTful API is deployed); its data storage is amended by ADR-014
 
 ### Context
 Sprint 2 requires the web application to be published at a public URL and working against its API. During the sprint
@@ -305,9 +306,10 @@ and needs a workaround for history routes.
 - **Positive:** one public HTTPS URL for the application and its Fake API, no CORS configuration, history routes that
   survive a reload, and preview deployments per pull request once the repository is connected to the project.
 - **Negative:** data written to the deployed Fake API lasts only while a function instance is alive and is not shared
-  between instances; the deployed Fake API is public, so the sign-up form warns visitors not to use a real password or
-  personal data; and, as in every production build, the password reset link is not shown on screen. The RESTful API
-  replaces the function in the next sprint by changing `VITE_AGROFLET_PLATFORM_API_URL`.
+  between instances (ADR-014 moves it to Upstash Redis); the deployed Fake API is public, so the sign-up form warns
+  visitors not to use a real password or personal data; and, as in every production build, the password reset link is
+  not shown on screen. The RESTful API replaces the function in the next sprint by changing
+  `VITE_AGROFLET_PLATFORM_API_URL`.
 
 ---
 
@@ -342,3 +344,42 @@ change every URL of the application, including the segment links used by the lan
   application depends on the Vercel deployment for its data (two origins, so the Fake API must keep answering
   cross-origin requests, which `json-server` does by default), and data written from either URL goes to the same Fake
   API. When the RESTful API is deployed, the repository variable `AGROFLET_PLATFORM_API_URL` points the build to it.
+
+---
+
+## ADR-014: Upstash Redis storage for the deployed Fake API
+
+### Status
+Accepted (temporary, like the Fake API, until the RESTful API is deployed; amends ADR-012)
+
+### Context
+ADR-012 kept the data of the deployed Fake API in a copy of `server/db.json` in the temporary directory of each Vercel
+Function instance. Vercel may answer consecutive requests from the same visitor with different instances and stops
+idle ones, so data registered through one instance was missing in the next request: a driver registered by the
+dispatcher did not appear among the available drivers when registering a shipment. Locally a single process holds the
+data, so the same use cases worked with `npm run dev`.
+
+### Decision
+Keep the data of the deployed Fake API in an Upstash Redis database connected to the Vercel project from the Vercel
+Marketplace (free plan). On every request `api/index.js` loads the data from Redis and lets `json-server` answer it in
+memory; when the request changed the data, it saves it back before answering. Requests that change data hold a Redis
+lock (`SET` with `NX` and an expiration, released by a script that checks its owner) from loading to saving, so
+parallel writes from any instance never overwrite each other. Until the first write, Redis holds no data and the seed
+is served. The function reads the credentials that the integration adds (`KV_REST_API_URL` and `KV_REST_API_TOKEN`, or
+`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`) and calls the Upstash REST API with `fetch`, so no dependency
+is added; without them it keeps the per-instance copy of ADR-012.
+
+Alternatives considered: keeping the data in the browser (`localStorage`) for deployed builds, which needs no setup but
+stops using the deployed Fake API and does not share data between devices or between the dispatcher and the buyer;
+running `json-server` as a long-lived Node.js service (for example, on Render), which needs another platform, sleeps on
+the free tier and still loses its data when it restarts; and Vercel Blob or Edge Config, which store files and
+configuration rather than data that changes on every request.
+
+### Consequences
+- **Positive:** every instance, the Vercel URL and GitHub Pages see the same data, which survives new instances and
+  deployments, so use cases that span several requests (register a driver, then reserve it in a shipment) work in the
+  deployed application. Replacing the Fake API with the RESTful API still only changes `VITE_AGROFLET_PLATFORM_API_URL`.
+- **Negative:** the deployed Fake API depends on a Redis database that is created once in the Vercel project; its data
+  is shared by every visitor and persists until someone deletes the `agroflet-fake-api:db` key, which restores the
+  seed; and each request reads the whole database while writes run one at a time, which suits demo data but not a real
+  backend.

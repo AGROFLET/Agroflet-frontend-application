@@ -38,7 +38,7 @@ Version `1.0.0` corresponds to **Sprint 2 (TB1)**: first version of the web appl
 | HTTP client | Axios 1 (`BaseApi` + `BaseEndpoint`) |
 | Maps (third-party service) | Leaflet 1.9 with OpenStreetMap tiles |
 | Mock API | `json-server` 0.17 |
-| Hosting | Vercel: static build plus a Vercel Function that serves the Fake API (`vercel.json`, `api/index.js`); GitHub Pages: static build published by GitHub Actions |
+| Hosting | Vercel: static build plus a Vercel Function that serves the Fake API (`vercel.json`, `api/index.js`), with its data in Upstash Redis; GitHub Pages: static build published by GitHub Actions |
 
 ## Project Structure (DDD-Oriented)
 ```text
@@ -208,11 +208,16 @@ The global guard (`authenticationGuard`) restores the session, redirects anonymo
   available: the Fake API is for demonstration only and must never hold real credentials.
 - Password recovery has no e-mail service yet; in development builds (`npm run dev`) the one-time reset link is shown on
   screen. Production builds never show it, so the reset step can only be demonstrated locally.
-- **Deployed Fake API.** `api/index.js` copies `server/db.json` to the temporary directory of the Vercel Function
-  when an instance starts. Changes last while that instance is alive and the data returns to the seed when a new
-  instance starts. It also answers requests from other origins (`json-server` enables CORS by default), which the
-  copy on GitHub Pages relies on. The deployed Fake API is public, so the sign-up form asks visitors not to use a real
-  password or personal data.
+- **Deployed Fake API.** Vercel may answer consecutive requests with different instances of the function in
+  `api/index.js` and stops idle ones, so the deployed Fake API keeps its data in an Upstash Redis database connected to
+  the Vercel project (see [Vercel](#vercel)). Every instance reads and writes the same data, which also survives new
+  deployments. Each request loads the data from Redis, and a request that changes it holds a short Redis lock until the
+  change is saved, so parallel writes (for example, reserving the vehicle and the driver of a new shipment) never
+  overwrite each other. While nothing has been saved, the seed in `server/db.json` is served; to restore it, delete the
+  `agroflet-fake-api:db` key from the database. Without a connected database, the function falls back to a copy of the
+  seed per instance, whose changes are lost whenever another instance answers. The Fake API also answers requests from
+  other origins (`json-server` enables CORS by default), which the copy on GitHub Pages relies on. It is public and its
+  data is shared by every visitor, so the sign-up form asks visitors not to use a real password or personal data.
 
 ## Deployment
 The application is deployed on **Vercel** at <https://agroflet-frontend-application.vercel.app>, together with its Fake
@@ -224,6 +229,14 @@ Fake API on Vercel.
 in `api/index.js` (the Fake API: `json-server` over a copy of `server/db.json`, with the routes of `server/routes.json`)
 and rewrites every other route to `index.html` (history mode). The application and its Fake API share one domain, so
 production builds call `/api/v1`.
+
+**Fake API database (one-time setup).** In the Vercel project, open *Storage*, create an **Upstash** Redis database on
+the free plan and connect it to the project. Choose a US East primary region, where the function runs (`iad1`,
+Washington, D.C.), and no read regions, so every read sees the latest write. The integration adds `KV_REST_API_URL`
+and `KV_REST_API_TOKEN` (or `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`); `api/index.js` finds them, with
+or without a custom prefix, and calls the Upstash REST API with `fetch`. Redeploy after connecting it, because a
+deployment only reads the variables that existed when it was created. To restore the demo data, delete the
+`agroflet-fake-api:db` key from the database.
 
 To deploy a new version, use one of these options:
 - **Git integration (recommended):** connect the GitHub repository to the Vercel project (Project Settings > Git). Each

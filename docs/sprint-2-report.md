@@ -55,6 +55,7 @@ Se agregan las herramientas utilizadas en el Sprint 2 para la Frontend Web Appli
 | Software Development | Leaflet 1.9 y OpenStreetMap | Mapa de rutas planificadas y posiciones reportadas (servicio externo de terceros). | https://leafletjs.com/ · https://www.openstreetmap.org/ |
 | Software Development | json-server 0.17 | Fake API del Sprint 2 (`server/db.json`, rutas `/api/v1/*`). | https://github.com/typicode/json-server |
 | Software Deployment | Vercel (integración con GitHub o Vercel CLI) | Publicación de la Frontend Web Application y de la Fake API como Vercel Function en un mismo dominio (`vercel.json`, `api/index.js`). | https://vercel.com/docs |
+| Software Deployment | Upstash Redis (Marketplace de Vercel, plan gratuito) | Base de datos compartida por las instancias de la Vercel Function, donde la Fake API desplegada guarda sus datos. | https://upstash.com/docs/redis |
 | Software Documentation | PlantUML | Diagrama de clases por bounded context (`docs/class-diagram.puml`). | https://plantuml.com/ |
 | Software Documentation | OpenAPI 3 / Swagger Editor | Documentación de los endpoints de la Fake API (`docs/fake-api.openapi.yaml`). | https://editor.swagger.io/ |
 
@@ -145,10 +146,18 @@ convenciones de la aplicación Vue:
 
 - `vercel.json` ejecuta `npm run build`, publica la carpeta `dist/`, envía `/api/v1/*` a la Vercel Function
   `api/index.js` y reescribe las demás rutas a `index.html` (modo *history* de Vue Router).
-- La Vercel Function ejecuta json-server con las rutas de `server/routes.json` sobre una copia de `server/db.json` en el
-  directorio temporal, porque el sistema de archivos del despliegue es de solo lectura. Los cambios duran mientras la
-  instancia de la función está activa y los datos vuelven al estado inicial cuando se inicia otra instancia, lo cual es
-  aceptable para datos de demostración.
+- La Vercel Function ejecuta json-server con las rutas de `server/routes.json` y guarda los datos en una base Upstash
+  Redis conectada al proyecto (decisión registrada en `docs/adrs.md`, ADR-014). Vercel puede atender peticiones
+  seguidas con instancias distintas de la función y detiene las que no se usan, así que una copia de `server/db.json`
+  por instancia perdía los registros: un conductor recién registrado no aparecía al registrar una operación. Cada
+  petición carga los datos desde Redis y la que los modifica toma un bloqueo breve en Redis hasta guardar el cambio, de
+  modo que todas las instancias ven los mismos datos y las escrituras en paralelo no se pisan. Mientras no se guarde
+  ningún cambio se sirven los datos de `server/db.json`; para volver a ellos se borra la clave `agroflet-fake-api:db` de
+  la base. Sin la base conectada, la función vuelve a usar una copia de los datos por instancia.
+- Configuración única de la base: en el proyecto de Vercel, *Storage* → crear una base Upstash (Redis, plan gratuito,
+  en una región del este de EE. UU., cerca de la región `iad1` de la función) → conectarla al proyecto. La integración
+  agrega `KV_REST_API_URL` y `KV_REST_API_TOKEN`, que la función lee sin dependencias adicionales; después se vuelve a
+  desplegar.
 - `.env.production` define `VITE_AGROFLET_PLATFORM_API_URL=/api/v1`: la aplicación y su Fake API comparten el dominio,
   por lo que no se configura CORS.
 - La clave de licencia de PrimeUI (`VITE_PRIME_UI_LICENSE_KEY`, licencia Community gratuita para estudiantes:
@@ -157,8 +166,9 @@ convenciones de la aplicación Vue:
 - Procedimiento: conectar el repositorio de GitHub al proyecto de Vercel (*Settings > Git*), de modo que cada push a
   `main` despliegue a producción y cada Pull Request genere una URL de vista previa; o bien, con Vercel CLI:
   `npm install -g vercel` → `vercel login` → `vercel link` → `vercel --prod`.
-- La Fake API desplegada es pública: el formulario de registro advierte que no se usen contraseñas reales ni datos
-  personales, y el enlace de restablecimiento de contraseña solo se muestra en construcciones de desarrollo.
+- La Fake API desplegada es pública y sus datos los comparten todos los visitantes: el formulario de registro advierte
+  que no se usen contraseñas reales ni datos personales, y el enlace de restablecimiento de contraseña solo se muestra
+  en construcciones de desarrollo.
 
 **Frontend Web Application en GitHub Pages (GitHub Actions).** La misma aplicación se publica desde el repositorio en
 https://agroflet.github.io/Agroflet-frontend-application/ (decisión registrada en `docs/adrs.md`, ADR-013).
@@ -254,7 +264,7 @@ equipo fuera de este repositorio (Landing Page) figuran como *To-do* hasta compl
 | — | Tareas transversales | T05 | Tema visual Material | Preset de PrimeVue con la paleta de AgroFlet, tipografía Inter, tokens `--agf-*` y estados con ícono, texto y color. | 3 | Rivas Méndez, Bernie Aarón | Done |
 | — | Tareas transversales | T06 | Internacionalización | Diccionarios `en.json` y `es.json`, títulos de página traducidos y atributo `lang` del documento. | 5 | Centeno León, Adriano Samir | Done |
 | — | Tareas transversales | T07 | Documentación técnica | README, CHANGELOG, ADRs, User Stories con RTM, diagrama de clases y OpenAPI de la Fake API. | 6 | Centeno León, Adriano Samir | Done |
-| — | Tareas transversales | T08 | Despliegue de la aplicación y de la Fake API | Configuración de Vercel (`vercel.json`), Fake API como Vercel Function (`api/index.js`), `.env.production` con `/api/v1` y despliegue en https://agroflet-frontend-application.vercel.app; publicación en GitHub Pages con GitHub Actions. | 4 | Rivas Castillo, Christoper Steven | Done |
+| — | Tareas transversales | T08 | Despliegue de la aplicación y de la Fake API | Configuración de Vercel (`vercel.json`), Fake API como Vercel Function (`api/index.js`) con los datos en Upstash Redis, `.env.production` con `/api/v1` y despliegue en https://agroflet-frontend-application.vercel.app; publicación en GitHub Pages con GitHub Actions. | 4 | Rivas Castillo, Christoper Steven | Done |
 | US01 | Registro de cuenta | T09 | Vista de registro | Formulario con rol, datos de contacto, idioma y validaciones de correo, contraseña y teléfono. | 3 | Rivas Castillo, Christoper Steven | Done |
 | US01 | Registro de cuenta | T10 | Caso de uso de registro | Rechazo de correo duplicado e indicación del siguiente paso (iniciar sesión). | 2 | Rivas Castillo, Christoper Steven | Done |
 | US02 | Inicio de sesión | T11 | Vista de inicio de sesión | Formulario con error genérico que no revela la existencia de la cuenta. | 2 | Rivas Castillo, Christoper Steven | Done |
@@ -340,8 +350,8 @@ los envíos dirigidos a él, en escritorio y en móvil, en inglés o en español
 desplegada (https://agroflet-frontend-application.vercel.app) con las cuentas de demostración (contraseña
 `Agroflet2026`): `dispatcher@agroflet.pe` y `buyer@agroflet.pe`.
 
-- Los datos registrados en la versión desplegada se conservan mientras la instancia de la Vercel Function está activa y
-  vuelven al estado inicial cuando se inicia otra, por lo que conviene tomar cada secuencia de capturas de corrido.
+- Los datos registrados en la versión desplegada se guardan en Upstash Redis y son los mismos en la URL de Vercel y en
+  la de GitHub Pages, por lo que una secuencia de capturas puede tomarse en varios momentos.
 - La captura 3 se toma en local (`npm run dev`): sin servicio de correo en el Sprint 2, el enlace de
   restablecimiento de un solo uso solo se muestra en construcciones de desarrollo y nunca en la versión desplegada.
 
@@ -377,8 +387,7 @@ servidores que declara. La documentación con Swagger del RESTful API (ASP.NET C
 
 URL local base: `http://localhost:5173/api/v1`, que `npm run dev` sirve junto con la aplicación, o
 `http://localhost:3000/api/v1` con `npm run server`, que levanta la Fake API sola. URL desplegada:
-https://agroflet-frontend-application.vercel.app/api/v1 (Vercel Function; los datos vuelven al estado inicial cuando se
-inicia una nueva instancia).
+https://agroflet-frontend-application.vercel.app/api/v1 (Vercel Function con los datos en Upstash Redis).
 
 | Endpoint | Verbo | Acción implementada | Sintaxis de llamada | Parámetros | Response | TS emulado |
 |:--|:--:|:--|:--|:--|:--|:--|
@@ -480,21 +489,25 @@ Page con los llamados a la acción hacia la aplicación.
    aplicación llama a la Fake API en su propio dominio. La clave `VITE_PRIME_UI_LICENSE_KEY` (licencia Community) se
    registra en *Settings > Environment Variables* (Production) y no en el repositorio; después de agregarla se vuelve a
    desplegar. `[COMPLETAR: captura sin la clave visible]`
-3. **Despliegue.** La versión de producción se publicó en https://agroflet-frontend-application.vercel.app. Para las
+3. **Base de datos de la Fake API.** En *Storage* se crea una base Upstash (Redis, plan gratuito) y se conecta al
+   proyecto, que recibe las variables `KV_REST_API_URL` y `KV_REST_API_TOKEN`; la Vercel Function guarda allí los datos
+   para que todas sus instancias compartan los mismos. Después de conectarla se vuelve a desplegar.
+   `[COMPLETAR: captura de la base conectada al proyecto, sin los valores de las variables]`
+4. **Despliegue.** La versión de producción se publicó en https://agroflet-frontend-application.vercel.app. Para las
    siguientes versiones, conectar el repositorio de GitHub al proyecto (*Settings > Git*) para que cada push a `main`
    despliegue a producción y cada Pull Request genere una URL de vista previa, o desplegar con Vercel CLI
    (`npm install -g vercel`, `vercel login`, `vercel link`, `vercel --prod`).
    `[COMPLETAR: captura del despliegue en estado Ready]`
-4. **Verificación.** En la URL pública se comprobó que la aplicación carga, que una ruta interna recargada (por ejemplo
+5. **Verificación.** En la URL pública se comprobó que la aplicación carga, que una ruta interna recargada (por ejemplo
    `/shipments/1`) devuelve `index.html`, que `GET /api/v1/locations` responde las 10 ubicaciones de muestra y que
    `GET /api/v1/shipments/1` responde la operación AGF-0001. Para la exposición: iniciar sesión con las cuentas de
    demostración, cambiar el idioma y revisar la vista móvil. `[COMPLETAR: capturas]`
-5. **GitHub Pages.** En el repositorio se activa *Settings > Pages > Build and deployment > Source: GitHub Actions*. Al
+6. **GitHub Pages.** En el repositorio se activa *Settings > Pages > Build and deployment > Source: GitHub Actions*. Al
    fusionar `release/v1.0.0` en `main`, el workflow *Deploy to GitHub Pages* construye la aplicación con la base
    `/Agroflet-frontend-application/` y la publica en https://agroflet.github.io/Agroflet-frontend-application/, donde
    consume la Fake API de Vercel. Verificar el inicio de sesión con las cuentas de demostración y que una ruta interna
    recargada abra la aplicación. `[COMPLETAR: captura de la ejecución en Actions y de la aplicación en GitHub Pages]`
-6. **Landing Page.** Actualizar los llamados a la acción de cada segmento a
+7. **Landing Page.** Actualizar los llamados a la acción de cada segmento a
    `https://agroflet-frontend-application.vercel.app/iam/sign-up?segment=dispatcher` y
    `https://agroflet-frontend-application.vercel.app/iam/sign-up?segment=buyer` (o `sign-in`), publicar la nueva
    versión en GitHub Pages y etiquetarla según Semantic Versioning. `[COMPLETAR: captura y versión]`
