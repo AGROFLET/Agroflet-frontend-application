@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-10-05
+
+### Fixed
+- **Deployed Fake API:** data registered in the deployed application no longer disappears when Vercel answers the next
+  request with another function instance (for example, a new driver now appears among the available drivers when
+  registering a shipment). `api/index.js` keeps the data in an Upstash Redis database shared by every instance and
+  serializes writes with a Redis lock; without a connected database it keeps the previous per-instance copy of the
+  seed. See ADR-014 and the one-time setup in `README.md`.
+
 ## [1.0.0] - 2026-10-05
 
 First version of the AgroFlet Frontend Web Application (Sprint 2, TB1).
